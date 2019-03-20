@@ -9,5 +9,6 @@ defmodule TwitterFeed.Repo.Migrations.CreateFriends do
 
     create index(:friends, [:user_id])
     create index(:friends, [:friend_id])
+    create unique_index(:friends, [:user_id, :friend_id])
   end
 end

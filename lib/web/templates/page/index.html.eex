@@ -1,35 +1,23 @@
-<section class="phx-hero">
-  <h1><%= gettext "Welcome to %{name}!", name: "Phoenix" %></h1>
-  <p>A productive web framework that<br/>does not compromise speed and maintainability.</p>
-</section>
+<div id="wrapper">
+  <%= render "sidebar.html", assigns %>
+  <div id="content-wrapper" class="d-flex flex-column">
+    <div id="content">
+      <%= render "topbar.html", assigns %>
 
-<section class="row">
-  <article class="column">
-    <h2>Resources</h2>
-    <ul>
-      <li>
-        <a href="https://hexdocs.pm/phoenix/overview.html">Guides &amp; Docs</a>
-      </li>
-      <li>
-        <a href="https://github.com/phoenixframework/phoenix">Source</a>
-      </li>
-      <li>
-        <a href="https://github.com/phoenixframework/phoenix/blob/v1.4/CHANGELOG.md">v1.4 Changelog</a>
-      </li>
-    </ul>
-  </article>
-  <article class="column">
-    <h2>Help</h2>
-    <ul>
-      <li>
-        <a href="https://elixirforum.com/c/phoenix-forum">Forum</a>
-      </li>
-      <li>
-        <a href="https://webchat.freenode.net/?channels=elixir-lang">#elixir-lang on Freenode IRC</a>
-      </li>
-      <li>
-        <a href="https://twitter.com/elixirphoenix">Twitter @elixirphoenix</a>
-      </li>
-    </ul>
-  </article>
-</section>
+      <div class="container-fluid">
+        <h1 class="h3 mb-4 text-gray-800">Friends</h1>
+        <div class="row">
+          <div class="col-sm-10">
+            <div class="card">
+              <div class="card-header">Friends</div>
+              <div class="card-body">
+                <%= render "friend-list.html", assigns %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <%= render "footer.html" %>
+  </div>
+</div>

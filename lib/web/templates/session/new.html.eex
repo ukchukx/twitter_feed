@@ -13,7 +13,7 @@
               <div class="text-center">
                 <button class="btn btn-primary btn-icon-split btn-lg" type="submit">
                   <span class="icon">
-                    <fa-icon :icon="{ prefix: 'fab', iconName: 'twitter' }" />
+                    <i class="fab fa-twitter"></i>
                   </span>
                   <span class="text">
                     Sign in

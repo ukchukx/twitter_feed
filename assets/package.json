@@ -7,11 +7,6 @@
     "dev": "NODE_ENV=development webpack --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^1.2.14",
-    "@fortawesome/free-brands-svg-icons": "^5.8.0",
-    "@fortawesome/free-regular-svg-icons": "^5.7.1",
-    "@fortawesome/free-solid-svg-icons": "^5.7.1",
-    "@fortawesome/vue-fontawesome": "^0.1.5",
     "axios": "^0.18.0",
     "bootstrap-vue": "^2.0.0-rc.15",
     "jquery": "^3.3.1",

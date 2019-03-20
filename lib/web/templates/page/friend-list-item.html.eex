@@ -1,0 +1,13 @@
+<li class="list-group-item">
+  <div class="row w-100">
+    <div class="col-12 col-sm-6 col-md-3 px-0">
+      <img width="100" height="100" src="<%= @friend.profile_img %>" alt="<%= @friend.name %>" class="rounded-circle mx-auto d-block img-fluid">
+    </div>
+    <div class="col-12 col-sm-6 col-md-9 text-center text-sm-left">
+      <label class="name lead"><%= @friend.name %></label>
+      <br>
+      <span class="fa fa-at fa-fw text-muted"></span>
+      <span class="text-muted"><%= @friend.username %></span>
+    </div>
+  </div>
+</li>

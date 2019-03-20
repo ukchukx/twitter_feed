@@ -22,6 +22,7 @@ mix.setPublicPath('../priv/static')
   .sass('css/app.scss', 'css/app.css')
   .version()
   .copyDirectory('./static', '../priv/static')
+  .copyDirectory('./vendor/fontawesome-free/webfonts', '../priv/static/webfonts')
   .webpackConfig({
     resolve: {
       extensions: ['.vue', '.js'],

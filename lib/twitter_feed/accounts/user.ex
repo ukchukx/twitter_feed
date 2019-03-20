@@ -2,17 +2,18 @@ defmodule TwitterFeed.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias TwitterFeed.Accounts.Friend
-
-  @fields [:access_token, :access_token_secret, :id]
+  @fields [:access_token, :access_token_secret, :id, :profile_img, :username, :name]
   @primary_key {:id, :id, autogenerate: false}
+
+  @derive {Jason.Encoder, only: @fields}
 
   schema "users" do
     field :access_token, :string
     field :access_token_secret, :string
-    has_many :friendships, Friend
-    has_many :reverse_friendships, Friend, foreign_key: :friend_id
-    has_many :friends, through: [:friendships, :friend]
+    field :profile_img, :string
+    field :username, :string
+    field :name, :string
+    field :friends, {:array, :map}, default: [], virtual: true
 
     timestamps()
   end
@@ -21,6 +22,6 @@ defmodule TwitterFeed.Accounts.User do
   def changeset(%__MODULE__{} = user, attrs) do
     user
     |> cast(attrs, @fields)
-    |> validate_required(@fields)
+    |> validate_required([:id])
   end
 end

@@ -29,29 +29,44 @@ defmodule TwitterFeed.Web.SessionController do
   def twitter_hook(conn, %{"oauth_token" => token, "oauth_verifier" => verifier}) do
     {:ok, access_token} = ExTwitter.access_token(verifier, token)
 
+    if Application.get_env(:twitter_feed, :env) == :dev do
+      IO.inspect access_token, label: "access_token"
+    end
+
     ExTwitter.configure(
       :process,
-      Enum.concat(
-        ExTwitter.Config.get_tuples,
-        [access_token: access_token.oauth_token, access_token_secret: access_token.oauth_token_secret]
-      )
+      [
+        consumer_key: Application.get_env(:extwitter, :oauth)[:consumer_key],
+        consumer_secret: Application.get_env(:extwitter, :oauth)[:consumer_secret],
+        access_token: access_token.oauth_token,
+        access_token_secret: access_token.oauth_token_secret
+      ]
     )
 
-    user_info = ExTwitter.verify_credentials()
+    %{id: user_id} = user_info = ExTwitter.verify_credentials()
 
-    Logger.debug("User info: #{inspect(user_info)}")
+    if Application.get_env(:twitter_feed, :env) == :dev do
+      IO.inspect user_info, label: "user_info"
+    end
 
-    params = %{
-      id: user_info.id,
-      access_token: access_token.oauth_token,
-      access_token_secret: access_token.oauth_token_secret
-    }
+    params =
+      user_info
+      |> params_from_result
+      |> Map.put(:access_token, access_token.oauth_token)
+      |> Map.put(:access_token_secret, access_token.oauth_token_secret)
 
     {:ok, user} = Accounts.create_user(params)
 
-    IO.inspect user, label: "user"
+    if Application.get_env(:twitter_feed, :env) == :dev do
+      IO.inspect user, label: "user"
+    end
 
     # Fetch friends
+    user_id
+    |> ExTwitter.friend_ids
+    |> Map.get(:items, [])
+    |> Enum.each(fn id -> spawn(fn -> create_friend(id, user_id) end) end)
+
     conn
     |> set_current_user(user)
     |> redirect(to: Routes.page_path(conn, :index))
@@ -70,6 +85,26 @@ defmodule TwitterFeed.Web.SessionController do
     |> assign(:current_user, user)
     |> put_session(:user_id, id)
     |> configure_session(renew: true)
+  end
+
+  defp create_friend(id, user_id) do
+    {:ok, _} =
+      id
+      |> ExTwitter.user
+      |> Map.from_struct
+      |> params_from_result
+      |> Accounts.create_user
+
+    TwitterFeed.Accounts.add_friend(user_id, id)
+  end
+
+  defp params_from_result(result) do
+    %{
+      id: result.id,
+      username: result.screen_name,
+      name: result.name,
+      profile_img: result.profile_image_url_https
+    }
   end
 end
 

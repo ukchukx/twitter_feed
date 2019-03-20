@@ -1,0 +1,5 @@
+<ul class="list-group pull-down">
+  <%= for friend <- @friends do %>
+  <%= render "friend-list-item.html", friend: friend %>
+  <% end %>
+</ul>

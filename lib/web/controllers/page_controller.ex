@@ -1,8 +1,13 @@
 defmodule TwitterFeed.Web.PageController do
   use TwitterFeed.Web, :controller
 
-  def index(%{assigns: %{current_user: %{id: _}}} = conn, _params) do
-    render conn, "index.html"
+  def index(%{assigns: %{current_user: user = %{id: _}}} = conn, _) do
+    %{friends: friends} = TwitterFeed.Accounts.load_friends(user)
+
+    render conn, "index.html",
+      user: user,
+      title: "Friends",
+      friends: friends
   end
 
   def index(conn, _), do: redirect(conn, to: Routes.session_path(conn, :signin))
