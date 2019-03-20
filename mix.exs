@@ -20,7 +20,7 @@ defmodule TwitterFeed.MixProject do
   def application do
     [
       mod: {TwitterFeed.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :extwitter]
     ]
   end
 
@@ -33,6 +33,8 @@ defmodule TwitterFeed.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:extwitter, "~> 0.8"},
+      {:oauther, "~> 1.1"},
       {:phoenix, "~> 1.4.0"},
       {:phoenix_pubsub, "~> 1.1"},
       {:phoenix_ecto, "~> 4.0"},

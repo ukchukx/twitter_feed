@@ -1,0 +1,29 @@
+<div id="app">
+  <div class="container">
+    <!-- <div class="row mt-4">
+      <div class="col-sm-8 text-center mx-auto">
+        <flash-message />
+      </div>
+    </div> -->
+    <div class="row justify-content-center mt-4">
+      <div class="col-sm-8">
+        <div class="card card-default">
+          <div class="card-body">
+            <%= form_for @conn, Routes.session_path(@conn, :create_session), fn _ -> %>
+              <div class="text-center">
+                <button class="btn btn-primary btn-icon-split btn-lg" type="submit">
+                  <span class="icon">
+                    <fa-icon :icon="{ prefix: 'fab', iconName: 'twitter' }" />
+                  </span>
+                  <span class="text">
+                    Sign in
+                  </span>
+                </button>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

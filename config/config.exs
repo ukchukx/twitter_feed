@@ -10,6 +10,14 @@ use Mix.Config
 config :twitter_feed,
   ecto_repos: [TwitterFeed.Repo]
 
+config :extwitter, :oauth, [
+    consumer_key: System.get_env("TF_TWITTER_CONSUMER_KEY"),
+    consumer_secret: System.get_env("TF_TWITTER_CONSUMER_SECRET"),
+    access_token: System.get_env("TF_TWITTER_ACCESS_TOKEN"),
+    access_token_secret: System.get_env("TF_TWITTER_ACCESS_TOKEN_SECRET")
+  ]
+
+
 # Configures the endpoint
 config :twitter_feed, TwitterFeed.Web.Endpoint,
   url: [host: "localhost"],

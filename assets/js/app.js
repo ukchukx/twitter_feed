@@ -5,6 +5,7 @@ import axios from 'axios';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { far } from '@fortawesome/free-regular-svg-icons';
+import { fab } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 // Import local files
 // import socket from "./socket"
@@ -18,7 +19,7 @@ if (token) {
   axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
 }
 
-library.add(fas, far);
+library.add(fab, fas, far);
 Vue.component('fa-icon', FontAwesomeIcon);
 Vue.use(BootstrapVue);
 Vue.use(VueFlashMessage, { createShortcuts: false });
