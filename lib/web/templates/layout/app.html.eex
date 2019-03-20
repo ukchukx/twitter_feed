@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="csrf-token" content="<%= Phoenix.Controller.get_csrf_token() %>"/>
+    <title>Twitter feed · <%= TwitterFeed.Web.LayoutView.title(assigns) %></title>
+    <link rel="stylesheet" href='<%= Routes.static_path(@conn, "/css/app.css") %>'/>
+  </head>
+  <body id="page-top">
+    <%= render @view_module, @view_template, assigns %>
+    <script type="text/javascript" src='<%= Routes.static_path(@conn, "/js/manifest.js") %>'></script>
+    <script type="text/javascript" src='<%= Routes.static_path(@conn, "/js/vendor.js") %>'></script>
+    <script type="text/javascript" src='<%= Routes.static_path(@conn, "/js/app.js") %>'></script>
+    <script type="text/javascript" src='<%= Routes.static_path(@conn, "/js/bootstrap.bundle.min.js") %>'></script>
+    <script type="text/javascript" src='<%= Routes.static_path(@conn, "/js/sb-admin-2.min.js") %>'></script>
+  </body>
+</html>

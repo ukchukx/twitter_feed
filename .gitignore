@@ -1,0 +1,15 @@
+/_build/
+.elixir_ls/
+/cover/
+/deps/
+/doc/
+/.fetch
+node_modules/
+/priv/static/
+logs/
+erl_crash.dump
+*.ez
+twitter_feed-*.tar
+npm-debug.log
+.env*
+.directory
