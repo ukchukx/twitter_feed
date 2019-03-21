@@ -62,10 +62,14 @@ defmodule TwitterFeed.Web.SessionController do
     end
 
     # Fetch friends
-    user_id
-    |> ExTwitter.friend_ids
-    |> Map.get(:items, [])
-    |> Enum.each(fn id -> spawn(fn -> create_friend(id, user_id) end) end)
+    friends =
+      user_id
+      |> ExTwitter.friend_ids
+      |> Map.get(:items, [])
+
+    Enum.each(friends, fn id -> spawn(fn -> create_friend(id) end) end)
+
+    TwitterFeed.Accounts.add_friends(user_id, friends)
 
     conn
     |> set_current_user(user)
@@ -87,15 +91,12 @@ defmodule TwitterFeed.Web.SessionController do
     |> configure_session(renew: true)
   end
 
-  defp create_friend(id, user_id) do
-    {:ok, _} =
-      id
-      |> ExTwitter.user
-      |> Map.from_struct
-      |> params_from_result
-      |> Accounts.create_user
-
-    TwitterFeed.Accounts.add_friend(user_id, id)
+  defp create_friend(id) do
+    id
+    |> ExTwitter.user
+    |> Map.from_struct
+    |> params_from_result
+    |> Accounts.create_user
   end
 
   defp params_from_result(result) do

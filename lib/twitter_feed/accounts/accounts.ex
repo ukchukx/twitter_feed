@@ -18,33 +18,22 @@ defmodule TwitterFeed.Accounts do
   def get_user_by_id(id), do: User |> Repo.get(id) |> load_friends
 
   def create_user(%{id: id} = attrs) do
-    case get_user_by_id(id) do
-      nil ->
-        %User{}
-        |> User.changeset(attrs)
-        |> Repo.insert
-
-      user -> update_user(user, attrs)
-    end
-  end
-
-  def update_user(%User{} = user, attrs) do
-    user
-    |> User.changeset(attrs)
-    |> Repo.update
-  end
-
-  def add_friend(user_id, friend_id) do
-    from(f in Friend, where: f.user_id == ^user_id and f.friend_id == ^friend_id)
-    |> Repo.one
+    id
+    |> get_user_by_id
     |> case do
-      nil ->
-        %Friend{}
-        |> Friend.changeset(%{user_id: user_id, friend_id: friend_id})
-        |> Repo.insert
-
-      f -> {:ok, f}
+      nil -> %User{id: id}
+      user -> user
     end
+    |> User.changeset(attrs)
+    |> Repo.insert_or_update
+  end
+
+  def add_friends(user_id, friends) do
+    from(f in Friend, where: f.user_id == ^user_id) |> Repo.delete_all
+
+    friends = Enum.map(friends, &(%{user_id: user_id, friend_id: &1}))
+
+    Repo.insert_all(Friend, friends)
   end
 
 end
