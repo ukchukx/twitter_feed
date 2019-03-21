@@ -8,12 +8,11 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "bootstrap-vue": "^2.0.0-rc.15",
+    "bootstrap": "^4.3.1",
     "jquery": "^3.3.1",
     "moment": "^2.24.0",
     "phoenix": "file:../deps/phoenix",
     "vue": "^2.6.6",
-    "vue-flash-message": "^0.7.2",
     "vue-tweet-embed": "^2.2.1"
   },
   "devDependencies": {
