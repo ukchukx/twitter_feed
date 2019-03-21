@@ -2,9 +2,14 @@
   <!-- eslint-disable -->
   <div>
     <i v-if="loading" class="fas fa-spinner fa-spin"></i>
-    <ul class="list-group pull-down mb-3">
-      <tweet v-for="tweet in tweets" :tweet="tweet" :key="tweet" />
+    <ul v-if="tweets.length" class="list-group pull-down mb-3">
+      <tweet
+        v-for="tweet in tweets"
+        :tweet="tweet"
+        @read="markTweet(tweet)"
+        :key="tweet" />
     </ul>
+    <h4 v-else-if="!loading">No new tweets</h4>
   </div>
 </template>
 <script>
@@ -40,6 +45,15 @@ export default {
       .catch(() => {
         this.loading = false;
       });
+  },
+  methods: {
+    markTweet(tweet) {
+      axios
+        .post('/last-tweet', { tweet, friend: this.friend.id })
+        .then(() => {
+          this.tweets = this.tweets.filter(t => t > tweet);
+        });
+    }
   }
 };
 </script>

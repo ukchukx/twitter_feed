@@ -4,7 +4,7 @@
     <vue-tweet :id="tweet">
       <i class="fas fa-spinner fa-spin"></i>
     </vue-tweet>
-    <button class="btn btn-sm btn-primary btn-icon-split">
+    <button @click="mark()" class="btn btn-sm btn-primary btn-icon-split">
       <span class="icon text-white-50">
         <i class="fas fa-check"></i>
       </span>
@@ -26,6 +26,11 @@ export default {
     tweet: {
       type: String,
       required: true
+    }
+  },
+  methods: {
+    mark() {
+      this.$emit('read', this.tweet);
     }
   }
 };

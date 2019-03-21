@@ -21,10 +21,14 @@ defmodule TwitterFeed.Web.PageController do
       friend: friend
   end
 
-  def friend_tweets(%{assigns: %{current_user: %{id: _}}} = conn, %{"id" => id}) do
-    %{username: username} = TwitterFeed.Accounts.get_user_by_id(id)
+  def friend_tweets(%{assigns: %{current_user: %{id: id}}} = conn, %{"id" => friend_id}) do
     tweets =
-      ExTwitter.user_timeline(screen_name: username)
+      TwitterFeed.Accounts.get_last_tweet(id, friend_id)
+      |> case do
+        nil -> [user_id: friend_id]
+        tweet_id -> [user_id: friend_id, since_id: tweet_id]
+      end
+      |> ExTwitter.user_timeline
       |> Enum.map(&Map.from_struct/1)
       # |> Enum.map(fn m -> Map.drop(m, [:user]) end)
       |> Enum.map(&(Map.get(&1, :id_str)))
@@ -32,6 +36,20 @@ defmodule TwitterFeed.Web.PageController do
     # IO.inspect Enum.at tweets, 0
 
     json(conn, %{data: %{tweets: tweets}})
+  end
+
+  def save_last_tweet(%{assigns: %{current_user: %{id: id}}} = conn, %{"tweet" => tweet, "friend" => f_id}) do
+    tweet =
+      tweet
+      |> case  do
+        x when is_integer(x) -> x
+        x -> x |> Integer.parse |> elem(0) # Convert string to integer
+      end
+
+    case TwitterFeed.Accounts.save_last_tweet(id, f_id, tweet) do
+      {:ok, _} -> json(conn, %{success: true})
+      {:error, _} -> json(conn, %{success: false})
+    end
   end
 
   def catch_all(conn, _), do: redirect(conn, to: Routes.page_path(conn, :index))

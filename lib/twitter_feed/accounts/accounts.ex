@@ -15,6 +15,25 @@ defmodule TwitterFeed.Accounts do
   end
   def load_friends(x), do: x
 
+  def get_last_tweet(user_id, friend_id) do
+    case Repo.get_by(Friend, [friend_id: friend_id, user_id: user_id]) do
+      nil -> nil
+      %{last_tweet: id} -> id
+    end
+  end
+
+  def save_last_tweet(user_id, friend_id, tweet) do
+    from(f in Friend, where: f.friend_id == ^friend_id and f.user_id == ^user_id)
+    |> Repo.one
+    |> case do
+      nil -> {:error, :no_friendship}
+      schema ->
+        schema
+        |> Friend.changeset(%{last_tweet: tweet})
+        |> Repo.update
+    end
+  end
+
   def get_user_by_id(id), do: User |> Repo.get(id) |> load_friends
 
   def create_user(%{id: id} = attrs) do
