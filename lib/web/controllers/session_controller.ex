@@ -67,9 +67,10 @@ defmodule TwitterFeed.Web.SessionController do
       |> ExTwitter.friend_ids
       |> Map.get(:items, [])
 
-    Enum.each(friends, fn id -> spawn(fn -> create_friend(id) end) end)
-
-    TwitterFeed.Accounts.add_friends(user_id, friends)
+    spawn(fn ->
+      Enum.each(friends, &(create_friend(&1)))
+      TwitterFeed.Accounts.add_friends(user_id, friends)
+    end)
 
     conn
     |> set_current_user(user)
