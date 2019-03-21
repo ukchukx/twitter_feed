@@ -18,6 +18,8 @@ defmodule TwitterFeed.Web.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+    get "/friend/:id", PageController, :friend
+    get "/tweets/:id", PageController, :friend_tweets
 
     get "/signin", SessionController, :signin
     post "/signin", SessionController, :create_session

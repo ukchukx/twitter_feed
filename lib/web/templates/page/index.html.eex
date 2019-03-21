@@ -9,7 +9,6 @@
         <div class="row">
           <div class="col-sm-10">
             <div class="card">
-              <div class="card-header">Friends</div>
               <div class="card-body">
                 <%= render "friend-list.html", assigns %>
               </div>
