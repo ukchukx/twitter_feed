@@ -26,7 +26,8 @@ config :twitter_feed, TwitterFeed.Web.Endpoint,
   pubsub: [name: TwitterFeed.PubSub, adapter: Phoenix.PubSub.PG2]
 
 config :logger,
-  backends: [:console, {LoggerFileBackend, :file}]
+  backends: [:console, {LoggerFileBackend, :file}],
+  truncate: :infinity
 
 # Configures Elixir's Logger
 config :logger, :console,
