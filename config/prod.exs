@@ -4,7 +4,7 @@ config :twitter_feed, env: :prod
 
 config :twitter_feed, TwitterFeed.Web.Endpoint,
   http: [:inet6, port: System.get_env("TF_PORT") || 13000],
-  url: [host: "twitterfeed.geneius.com.ng", port: 443, scheme: "https"],
+  url: [host: "twitterfeed.moview.com.ng", port: 443, scheme: "https"],
   server: true,
   cache_static_manifest: "priv/static/cache_manifest.json"
 
