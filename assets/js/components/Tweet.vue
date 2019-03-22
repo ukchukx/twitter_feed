@@ -35,7 +35,7 @@ export default {
   }
 };
 </script>
-<style>
+<style scoped>
 .list-group-item {
   border: none;
   padding: none;
