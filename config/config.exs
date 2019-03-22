@@ -25,10 +25,20 @@ config :twitter_feed, TwitterFeed.Web.Endpoint,
   render_errors: [view: TwitterFeed.Web.ErrorView, accepts: ~w(html json)],
   pubsub: [name: TwitterFeed.PubSub, adapter: Phoenix.PubSub.PG2]
 
+config :logger,
+  backends: [:console, {LoggerFileBackend, :file}]
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
-  metadata: [:request_id]
+  metadata: [:all]
+
+config :logger, :file,
+  path: "logs/log.log",
+  format: "[$date] [$time] [$level] $metadata $levelpad$message\n",
+  metadata: [:all],
+  level: :info,
+  rotate: %{max_bytes: 2000000, keep: 5}
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason

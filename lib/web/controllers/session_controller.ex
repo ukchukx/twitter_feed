@@ -29,9 +29,7 @@ defmodule TwitterFeed.Web.SessionController do
   def twitter_hook(conn, %{"oauth_token" => token, "oauth_verifier" => verifier}) do
     {:ok, access_token} = ExTwitter.access_token(verifier, token)
 
-    if Application.get_env(:twitter_feed, :env) == :dev do
-      IO.inspect access_token, label: "access_token"
-    end
+    Logger.debug("access_token: #{inspect(access_token)}")
 
     ExTwitter.configure(
       :process,
@@ -45,9 +43,7 @@ defmodule TwitterFeed.Web.SessionController do
 
     %{id: user_id} = user_info = ExTwitter.verify_credentials()
 
-    if Application.get_env(:twitter_feed, :env) == :dev do
-      IO.inspect user_info, label: "user_info"
-    end
+    Logger.debug("user_info: #{inspect(user_info)}")
 
     params =
       user_info
@@ -57,9 +53,7 @@ defmodule TwitterFeed.Web.SessionController do
 
     {:ok, user} = Accounts.create_user(params)
 
-    if Application.get_env(:twitter_feed, :env) == :dev do
-      IO.inspect user, label: "user"
-    end
+    Logger.debug("user: #{inspect(user)}")
 
     # Fetch friends
     friends =
@@ -67,9 +61,12 @@ defmodule TwitterFeed.Web.SessionController do
       |> ExTwitter.friend_ids
       |> Map.get(:items, [])
 
+    Logger.warn("Spawn a process to fetch and add friends...")
+
     spawn(fn ->
       Enum.each(friends, &(create_friend(&1)))
       TwitterFeed.Accounts.add_friends(user_id, friends)
+      Logger.warn("Done adding friends.")
     end)
 
     conn
@@ -83,8 +80,8 @@ defmodule TwitterFeed.Web.SessionController do
     |> redirect(to: Routes.session_path(conn, :signin))
   end
 
-  defp set_current_user(conn, %Accounts.User{id: id} = user) do
-    Logger.debug("Setting current user to #{inspect(user)}")
+  defp set_current_user(conn, %Accounts.User{id: id, username: username} = user) do
+    Logger.warn("Setting current user to @#{username}")
 
     conn
     |> assign(:current_user, user)
