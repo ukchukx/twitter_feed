@@ -1,0 +1,33 @@
+version: v1.0
+name: Deploy to production
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+blocks:
+  - name: Transfer
+    task:
+      secrets:
+        - name: ssh-key
+      jobs:
+        - name: transfer
+          commands:
+            - cache restore image-$SEMAPHORE_WORKFLOW_ID
+            - cache restore dockercompose-$SEMAPHORE_WORKFLOW_ID
+            - cache restore run-$SEMAPHORE_WORKFLOW_ID
+            - cache restore stop-$SEMAPHORE_WORKFLOW_ID
+            - echo 'Transferring app to production...'
+            - chmod 0600 ~/ssh-key/id_rsa*
+            - scp -i ~/ssh-key/id_rsa -o StrictHostKeyChecking=no twitter_feed.tar.gz docker-compose.yml {run,stop}.sh ubuntu@109.237.25.250:~/apps/twitter_feed/
+
+  - name: Deploy
+    task:
+      secrets:
+        - name: ssh-key
+      jobs:
+        - name: deploy
+          commands:
+            - echo 'Deploying app on server...'
+            - chmod 0600 ~/ssh-key/id_rsa*
+            - ssh -i ~/ssh-key/id_rsa -o StrictHostKeyChecking=no ubuntu@109.237.25.250 'cd ~/apps/twitter_feed;docker load -i twitter_feed.tar.gz;./run.sh'
+

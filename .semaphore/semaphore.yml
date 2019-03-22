@@ -1,0 +1,42 @@
+version: v1.0
+name: TwitterFeed app pipeline
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+
+blocks:
+  - name: Check master
+    task:
+      jobs:
+        - name: check master
+          commands:
+            - if [ "$SEMAPHORE_GIT_BRANCH" != "master" ]; then false; fi
+            - echo 'Master branch received'
+
+  - name: Build Docker image
+    task:
+      secrets:
+        - name: twitter_feed_secrets
+      prologue:
+        commands:
+          - checkout
+          - cp ../.env .
+      jobs:
+        - name: build image
+          commands:
+            - source .env
+            - ./build_docker.sh
+            - docker save -o twitter_feed.tar.gz twitter_feed
+            - cache store image-$SEMAPHORE_WORKFLOW_ID twitter_feed.tar.gz
+            - cache store dockercompose-$SEMAPHORE_WORKFLOW_ID docker-compose.yml
+            - cache store run-$SEMAPHORE_WORKFLOW_ID run.sh
+            - cache store stop-$SEMAPHORE_WORKFLOW_ID stop.sh
+
+promotions:
+  - name: Deploy to production
+    pipeline_file: production-deploy.yml
+    auto_promote_on:
+      - result: passed
+        branch:
+          - master
