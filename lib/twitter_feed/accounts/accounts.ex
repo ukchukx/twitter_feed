@@ -3,6 +3,7 @@ defmodule TwitterFeed.Accounts do
   alias TwitterFeed.Repo
   import Ecto.Query
 
+  @spec load_friends(Accounts.User.t() | any()) :: Accounts.User.t() | any()
   def load_friends(%{id: id} = user) do
     friends =
       from(u in User, join: f in Friend, where: f.user_id == ^id and u.id == f.friend_id, select: u)
@@ -15,6 +16,7 @@ defmodule TwitterFeed.Accounts do
   end
   def load_friends(x), do: x
 
+  @spec get_last_tweet(integer(), integer()) :: integer() | nil
   def get_last_tweet(user_id, friend_id) do
     case Repo.get_by(Friend, [friend_id: friend_id, user_id: user_id]) do
       nil -> nil
@@ -22,6 +24,7 @@ defmodule TwitterFeed.Accounts do
     end
   end
 
+  @spec save_last_tweet(integer(), integer(), integer()) :: {atom(), atom() | Accounts.Friend.t()}
   def save_last_tweet(user_id, friend_id, tweet) do
     from(f in Friend, where: f.friend_id == ^friend_id and f.user_id == ^user_id)
     |> Repo.one
@@ -34,8 +37,10 @@ defmodule TwitterFeed.Accounts do
     end
   end
 
+  @spec get_user_by_id(integer()) :: Accounts.User.t() | nil
   def get_user_by_id(id), do: User |> Repo.get(id) |> load_friends
 
+  @spec create_user(%{required(:id) => integer(), optional(atom()) => any()}) :: {:ok, Accounts.User.t()} | {:error, Ecto.Changeset.t()}
   def create_user(%{id: id} = attrs) do
     id
     |> get_user_by_id
@@ -47,6 +52,7 @@ defmodule TwitterFeed.Accounts do
     |> Repo.insert_or_update
   end
 
+  @spec add_friends(integer(), list(integer())) :: {any(), nil | [any()]}
   def add_friends(user_id, friends) do
     from(f in Friend, where: f.user_id == ^user_id) |> Repo.delete_all
 

@@ -5,6 +5,7 @@ defmodule TwitterFeed.Web.SessionController do
 
   alias TwitterFeed.Accounts
 
+  @spec signin(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def signin(%{assigns: %{current_user: %{id: _}}} = conn, _) do
     redirect(conn, to: Routes.page_path(conn, :index))
   end
@@ -13,6 +14,7 @@ defmodule TwitterFeed.Web.SessionController do
     render conn, "new.html", path: Routes.session_path(conn, :create_session), title: "Sign in"
   end
 
+  @spec create_session(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create_session(conn, _params) do
     token =
       conn
@@ -26,6 +28,7 @@ defmodule TwitterFeed.Web.SessionController do
   end
 
 
+  @spec twitter_hook(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def twitter_hook(conn, %{"oauth_token" => token, "oauth_verifier" => verifier}) do
     {:ok, access_token} = ExTwitter.access_token(verifier, token)
 
@@ -74,12 +77,14 @@ defmodule TwitterFeed.Web.SessionController do
     |> redirect(to: Routes.page_path(conn, :index))
   end
 
+  @spec delete_session(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def delete_session(conn, _) do
     conn
     |> clear_session
     |> redirect(to: Routes.session_path(conn, :signin))
   end
 
+  @spec set_current_user(Plug.Conn.t(), Accounts.User.t()) :: Plug.Conn.t()
   defp set_current_user(conn, %Accounts.User{id: id, username: username} = user) do
     Logger.warn("Setting current user to @#{username}")
 
@@ -89,6 +94,7 @@ defmodule TwitterFeed.Web.SessionController do
     |> configure_session(renew: true)
   end
 
+  @spec create_friend(integer() | binary()) :: {:ok, Accounts.User.t()} | {:error, Ecto.Changeset.t()}
   defp create_friend(id) do
     id
     |> ExTwitter.user
@@ -97,6 +103,7 @@ defmodule TwitterFeed.Web.SessionController do
     |> Accounts.create_user
   end
 
+  @spec params_from_result(any()) :: map()
   defp params_from_result(result) do
     %{
       id: result.id,

@@ -8,6 +8,12 @@ defmodule TwitterFeed.Accounts.Friend do
   @required_fields [:user_id, :friend_id]
   @primary_key false
 
+  @type t :: %__MODULE__{
+    user_id: integer(),
+    friend_id: integer(),
+    last_tweet: integer()
+  }
+
   schema "friends" do
     field :last_tweet, :integer
     belongs_to :user, User, primary_key: true

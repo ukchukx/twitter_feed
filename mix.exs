@@ -33,6 +33,7 @@ defmodule TwitterFeed.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},
       {:extwitter, "~> 0.8"},
       {:oauther, "~> 1.1"},
       {:phoenix, "~> 1.4.0"},

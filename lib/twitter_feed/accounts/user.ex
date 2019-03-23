@@ -7,6 +7,18 @@ defmodule TwitterFeed.Accounts.User do
 
   @derive {Jason.Encoder, only: @fields}
 
+  @type t :: %__MODULE__{
+    id: integer(),
+    access_token: String.t(),
+    access_token_secret: String.t(),
+    profile_img: String.t(),
+    username: String.t(),
+    name: String.t(),
+    friends: list(map()),
+    inserted_at: NaiveDateTime.t(),
+    updated_at: NaiveDateTime.t()
+  }
+
   schema "users" do
     field :access_token, :string
     field :access_token_secret, :string

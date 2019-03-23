@@ -1,6 +1,7 @@
 defmodule TwitterFeed.Web.PageController do
   use TwitterFeed.Web, :controller
 
+  @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def index(%{assigns: %{current_user: user = %{id: _}}} = conn, _) do
     %{friends: friends} = TwitterFeed.Accounts.load_friends(user)
 
@@ -12,6 +13,7 @@ defmodule TwitterFeed.Web.PageController do
 
   def index(conn, _), do: redirect(conn, to: Routes.session_path(conn, :signin))
 
+  @spec friend(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def friend(%{assigns: %{current_user: user = %{id: _}}} = conn, %{"id" => id}) do
     friend = TwitterFeed.Accounts.get_user_by_id(id)
 
@@ -21,6 +23,7 @@ defmodule TwitterFeed.Web.PageController do
       friend: friend
   end
 
+  @spec friend_tweets(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def friend_tweets(%{assigns: %{current_user: %{id: id}}} = conn, %{"id" => friend_id}) do
     tweets =
       TwitterFeed.Accounts.get_last_tweet(id, friend_id)
@@ -38,6 +41,7 @@ defmodule TwitterFeed.Web.PageController do
     json(conn, %{data: %{tweets: tweets}})
   end
 
+  @spec save_last_tweet(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def save_last_tweet(%{assigns: %{current_user: %{id: id}}} = conn, %{"tweet" => tweet, "friend" => f_id}) do
     tweet =
       tweet
@@ -52,5 +56,6 @@ defmodule TwitterFeed.Web.PageController do
     end
   end
 
+  @spec catch_all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def catch_all(conn, _), do: redirect(conn, to: Routes.page_path(conn, :index))
 end
