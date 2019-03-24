@@ -1,4 +1,4 @@
-version: '3'
+version: '2'
 services:
   twitter_feed:
     image: twitter_feed
