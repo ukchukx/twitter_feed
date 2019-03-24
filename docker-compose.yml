@@ -1,18 +1,10 @@
-version: '2'
+version: '3'
 services:
   twitter_feed:
     image: twitter_feed
     container_name: twitter_feed
     restart: unless-stopped
     network_mode: host
-    environment:
-      - TF_PORT=${TF_PORT}
-      - TF_DB_USERNAME=${TF_DB_USERNAME}
-      - TF_DB_PASSWORD=${TF_DB_PASSWORD}
-      - TF_TWITTER_CONSUMER_KEY=${TF_TWITTER_CONSUMER_KEY}
-      - TF_TWITTER_CONSUMER_SECRET=${TF_TWITTER_CONSUMER_SECRET}
-      - TF_TWITTER_ACCESS_TOKEN=${TF_TWITTER_ACCESS_TOKEN}
-      - TF_TWITTER_ACCESS_TOKEN_SECRET=${TF_TWITTER_ACCESS_TOKEN_SECRET}
     volumes:
       - "${PWD}/logs:/app/logs"
 

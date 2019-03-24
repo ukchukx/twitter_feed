@@ -25,7 +25,6 @@ blocks:
       jobs:
         - name: build image
           commands:
-            - source .env
             - ./build_docker.sh
             - docker save -o twitter_feed.tar.gz twitter_feed
             - cache store image-$SEMAPHORE_WORKFLOW_ID twitter_feed.tar.gz

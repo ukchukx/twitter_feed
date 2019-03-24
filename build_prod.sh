@@ -1,4 +1,5 @@
 #!/bin/bash
+source .env
 mix deps.get
 cd assets
 npm install --no-audit
