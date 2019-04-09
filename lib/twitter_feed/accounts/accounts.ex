@@ -3,6 +3,8 @@ defmodule TwitterFeed.Accounts do
   alias TwitterFeed.Repo
   import Ecto.Query
 
+  require Logger
+
   @spec load_friends(Accounts.User.t() | any()) :: Accounts.User.t() | any()
   def load_friends(%{id: id} = user) do
     friends =
@@ -54,8 +56,10 @@ defmodule TwitterFeed.Accounts do
 
   @spec add_friends(integer(), list(integer())) :: {any(), nil | [any()]}
   def add_friends(user_id, friends) do
+    Logger.info "Delete old friends..."
     from(f in Friend, where: f.user_id == ^user_id) |> Repo.delete_all
 
+    Logger.info "Add new friends..."
     friends = Enum.map(friends, &(%{user_id: user_id, friend_id: &1}))
 
     Repo.insert_all(Friend, friends)
