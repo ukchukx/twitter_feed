@@ -28,15 +28,13 @@ defmodule TwitterFeed.Web.PageController do
     tweets =
       TwitterFeed.Accounts.get_last_tweet(id, friend_id)
       |> case do
-        nil -> [user_id: friend_id]
-        tweet_id -> [user_id: friend_id, since_id: tweet_id]
+        nil -> []
+        tweet_id -> [since_id: tweet_id]
       end
+      |> Kernel.++([count: 200, user_id: friend_id])
       |> ExTwitter.user_timeline
       |> Enum.map(&Map.from_struct/1)
-      # |> Enum.map(fn m -> Map.drop(m, [:user]) end)
       |> Enum.map(&(Map.get(&1, :id_str)))
-
-    # IO.inspect Enum.at tweets, 0
 
     json(conn, %{data: %{tweets: tweets}})
   end

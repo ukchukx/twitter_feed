@@ -8,7 +8,7 @@ defmodule TwitterFeed.Accounts do
   @spec load_friends(Accounts.User.t() | any()) :: Accounts.User.t() | any()
   def load_friends(%{id: id} = user) do
     friends =
-      from(u in User, join: f in Friend, where: f.user_id == ^id and u.id == f.friend_id, select: u)
+      from(u in User, join: f in Friend, where: f.user_id == ^id and u.id == f.friend_id, select: u, order_by: [desc: f.last_tweet])
       |> Repo.all
       |> Enum.map(fn f = %{profile_img: p} ->
         %{f | profile_img: String.replace(p, "_normal", "_400x400")}
