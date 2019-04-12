@@ -56,13 +56,25 @@ defmodule TwitterFeed.Accounts do
 
   @spec add_friends(integer(), list(integer())) :: {any(), nil | [any()]}
   def add_friends(user_id, friends) do
-    Logger.info "Delete old friends..."
-    from(f in Friend, where: f.user_id == ^user_id) |> Repo.delete_all
+    existing_friends = from(f in Friend, where: f.user_id == ^user_id) |> Repo.all
+    existing_friend_ids = Enum.map(existing_friends, fn %{friend_id: id} -> id end)
 
-    Logger.info "Add new friends..."
-    friends = Enum.map(friends, &(%{user_id: user_id, friend_id: &1}))
+    Logger.info "#{user_id} has #{length(existing_friends)} existing friends"
 
-    Repo.insert_all(Friend, friends)
+    for_deletion = Enum.filter(existing_friends, fn %{friend_id: id } -> id not in friends end)
+
+    Logger.info "#{length(for_deletion)} friends to be deleted for #{user_id}"
+
+    Enum.each(for_deletion, &Repo.delete/1)
+
+    prospective_friends =
+      friends
+      |> Enum.filter(&(&1 not in existing_friend_ids))
+      |> Enum.map(&(%{user_id: user_id, friend_id: &1}))
+
+    Logger.info "#{length(prospective_friends)} new friends to be created for #{user_id}"
+
+    Repo.insert_all(Friend, prospective_friends)
   end
 
 end
