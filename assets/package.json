@@ -12,6 +12,7 @@
     "jquery": "^3.3.1",
     "moment": "^2.24.0",
     "phoenix": "file:../deps/phoenix",
+    "phoenix_live_view": "file:../deps/phoenix_live_view",
     "vue": "^2.6.6",
     "vue-tweet-embed": "^2.2.1"
   },

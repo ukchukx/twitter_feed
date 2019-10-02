@@ -22,6 +22,7 @@ config :extwitter, :oauth, [
 config :twitter_feed, TwitterFeed.Web.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "UhoTEvjsE1el9gL+Lhr2QEnQQady7LG+zGewDVQiEGVXLp4GmCvLqu+YBHBMziVQ",
+  live_view: [signing_salt: "pR0CP5jlGrUiUbSvuDlxJVe50EYcZ9SwiuXRhoI1MaYdEkRnKXkGGsjgF6YBfLBe"],
   render_errors: [view: TwitterFeed.Web.ErrorView, accepts: ~w(html json)],
   pubsub: [name: TwitterFeed.PubSub, adapter: Phoenix.PubSub.PG2]
 
@@ -43,6 +44,9 @@ config :logger, :file,
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
+
+config :phoenix,
+  template_engines: [leex: Phoenix.LiveView.Engine]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
