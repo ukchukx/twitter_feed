@@ -5,20 +5,28 @@ defmodule TwitterFeed.Accounts do
 
   require Logger
 
-  @spec load_friends(Accounts.User.t() | any()) :: Accounts.User.t() | any()
-  def load_friends(%{id: id} = user) do
-    friends =
-      from(u in User, join: f in Friend, where: f.user_id == ^id and u.id == f.friend_id, select: u, order_by: [desc: f.last_tweet])
-      |> Repo.all
-      |> Enum.map(fn f = %{profile_img: p} ->
-        %{f | profile_img: String.replace(p, "_normal", "_400x400")}
-      end)
+  @spec get_friends(pos_integer) :: list()
+  @spec load_friends(Accounts.User.t() | any) :: Accounts.User.t() | any
+  @spec get_last_tweet(pos_integer, pos_integer) :: pos_integer | nil
+  @spec save_last_tweet(pos_integer, pos_integer, pos_integer) :: {atom, atom | Accounts.Friend.t()}
+  @spec get_user_by_id(pos_integer) :: Accounts.User.t() | nil
+  @spec create_user(%{required(:id) => pos_integer, optional(atom) => any}) :: {:ok, Accounts.User.t()} | {:error, Ecto.Changeset.t()}
+  @spec add_friends(pos_integer, list(pos_integer)) :: {any, nil | [any]}
 
-    %{user | friends: friends}
+
+  def get_friends(id) do
+    from(u in User, join: f in Friend, where: f.user_id == ^id and u.id == f.friend_id, select: u, order_by: [desc: f.last_tweet])
+    |> Repo.all
+    |> Enum.map(fn f = %{profile_img: p} ->
+      %{f | profile_img: String.replace(p, "_normal", "_400x400")}
+    end)
+  end
+
+  def load_friends(%{id: id} = user) do
+    %{user | friends: get_friends(id)}
   end
   def load_friends(x), do: x
 
-  @spec get_last_tweet(integer(), integer()) :: integer() | nil
   def get_last_tweet(user_id, friend_id) do
     case Repo.get_by(Friend, [friend_id: friend_id, user_id: user_id]) do
       nil -> nil
@@ -26,7 +34,6 @@ defmodule TwitterFeed.Accounts do
     end
   end
 
-  @spec save_last_tweet(integer(), integer(), integer()) :: {atom(), atom() | Accounts.Friend.t()}
   def save_last_tweet(user_id, friend_id, tweet) do
     from(f in Friend, where: f.friend_id == ^friend_id and f.user_id == ^user_id)
     |> Repo.one
@@ -39,10 +46,8 @@ defmodule TwitterFeed.Accounts do
     end
   end
 
-  @spec get_user_by_id(integer()) :: Accounts.User.t() | nil
   def get_user_by_id(id), do: User |> Repo.get(id) |> load_friends
 
-  @spec create_user(%{required(:id) => integer(), optional(atom()) => any()}) :: {:ok, Accounts.User.t()} | {:error, Ecto.Changeset.t()}
   def create_user(%{id: id} = attrs) do
     id
     |> get_user_by_id
@@ -54,7 +59,6 @@ defmodule TwitterFeed.Accounts do
     |> Repo.insert_or_update
   end
 
-  @spec add_friends(integer(), list(integer())) :: {any(), nil | [any()]}
   def add_friends(user_id, friends) do
     existing_friends = from(f in Friend, where: f.user_id == ^user_id) |> Repo.all
     existing_friend_ids = Enum.map(existing_friends, fn %{friend_id: id} -> id end)

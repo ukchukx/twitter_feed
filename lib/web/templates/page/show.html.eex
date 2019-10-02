@@ -32,7 +32,7 @@
           <div class="col-sm-12 col-md-4 mb-4">
             <div class="card">
               <div class="card-body">
-                <tweets :friend="<%= Jason.encode!(@friend) %>" />
+                <%= live_render @conn, TwitterFeed.Web.FriendLiveView, session: %{user: @user, friend: @friend} %>
               </div>
             </div>
           </div>

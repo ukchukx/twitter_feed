@@ -25,8 +25,6 @@ defmodule TwitterFeed.Web.Router do
 
       get "/", PageController, :index
       get "/friend/:id", PageController, :friend
-      get "/tweets/:id", PageController, :friend_tweets
-      post "/last-tweet", PageController, :save_last_tweet
 
       get "/signout", SessionController, :delete_session
     end

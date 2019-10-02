@@ -1,7 +1,5 @@
 const mix = require('laravel-mix');
 const path = require('path');
-const MomentLocalesPlugin = require('moment-locales-webpack-plugin');
-require('laravel-mix-eslint');
 
 /*
  |--------------------------------------------------------------------------
@@ -15,7 +13,6 @@ require('laravel-mix-eslint');
  */
 mix.setPublicPath('../priv/static')
   .js('js/app.js', 'js/app.js')
-  .eslint()
   .js('js/sb-admin-2.min.js', 'js/sb-admin-2.min.js')
   .js('js/bootstrap.bundle.min.js', 'js/bootstrap.bundle.min.js')
   .extract(Object.keys(require('./package.json').dependencies))
@@ -25,18 +22,14 @@ mix.setPublicPath('../priv/static')
   .copyDirectory('./vendor/fontawesome-free/webfonts', '../priv/static/webfonts')
   .webpackConfig({
     resolve: {
-      extensions: ['.vue', '.js'],
+      extensions: ['.js'],
       alias: {
         '@': path.resolve(
           __dirname,
           'js'
         )
       }
-    },
-    plugins: [
-      // strip all locales except “en”
-      new MomentLocalesPlugin()
-    ]
+    }
   })
   .options({
     clearConsole: false,

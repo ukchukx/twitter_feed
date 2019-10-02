@@ -15,7 +15,5 @@
     <script type="text/javascript" src='<%= Routes.static_path(@conn, "/js/manifest.js") %>'></script>
     <script type="text/javascript" src='<%= Routes.static_path(@conn, "/js/vendor.js") %>'></script>
     <script type="text/javascript" src='<%= Routes.static_path(@conn, "/js/app.js") %>'></script>
-    <script type="text/javascript" src='<%= Routes.static_path(@conn, "/js/bootstrap.bundle.min.js") %>'></script>
-    <script type="text/javascript" src='<%= Routes.static_path(@conn, "/js/sb-admin-2.min.js") %>'></script>
   </body>
 </html>

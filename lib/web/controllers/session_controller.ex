@@ -5,7 +5,16 @@ defmodule TwitterFeed.Web.SessionController do
 
   alias TwitterFeed.Accounts
 
+  @friends_topic Application.get_env(:twitter_feed, :topics)[:friends]
+  @friend_added Application.get_env(:twitter_feed, :events)[:friend_added]
+
   @spec signin(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  @spec create_session(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  @spec twitter_hook(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  @spec delete_session(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  @spec set_current_user(Plug.Conn.t(), Accounts.User.t()) :: Plug.Conn.t()
+
+
   def signin(%{assigns: %{current_user: %{id: _}}} = conn, _) do
     redirect(conn, to: Routes.page_path(conn, :index))
   end
@@ -14,8 +23,7 @@ defmodule TwitterFeed.Web.SessionController do
     render conn, "new.html", path: Routes.session_path(conn, :create_session), title: "Sign in"
   end
 
-  @spec create_session(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def create_session(conn, _params) do
+  def create_session(conn, _) do
     token =
       conn
       |> Routes.session_url(:twitter_hook)
@@ -28,19 +36,18 @@ defmodule TwitterFeed.Web.SessionController do
   end
 
 
-  @spec twitter_hook(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def twitter_hook(conn, %{"oauth_token" => token, "oauth_verifier" => verifier}) do
-    {:ok, access_token} = ExTwitter.access_token(verifier, token)
+  def twitter_hook(conn, %{"oauth_token" => t, "oauth_verifier" => v}) do
+    {:ok, at = %{oauth_token: ot, oauth_token_secret: ots}} = ExTwitter.access_token(v, t)
 
-    Logger.debug("access_token: #{inspect(access_token)}")
+    Logger.debug("access_token: #{inspect(at)}")
 
     ExTwitter.configure(
       :process,
       [
         consumer_key: Application.get_env(:extwitter, :oauth)[:consumer_key],
         consumer_secret: Application.get_env(:extwitter, :oauth)[:consumer_secret],
-        access_token: access_token.oauth_token,
-        access_token_secret: access_token.oauth_token_secret
+        access_token: ot,
+        access_token_secret: ots
       ]
     )
 
@@ -51,8 +58,8 @@ defmodule TwitterFeed.Web.SessionController do
     params =
       user_info
       |> params_from_result
-      |> Map.put(:access_token, access_token.oauth_token)
-      |> Map.put(:access_token_secret, access_token.oauth_token_secret)
+      |> Map.put(:access_token, ot)
+      |> Map.put(:access_token_secret, ots)
 
     {:ok, user} = Accounts.create_user(params)
 
@@ -64,12 +71,19 @@ defmodule TwitterFeed.Web.SessionController do
       |> ExTwitter.friend_ids
       |> Map.get(:items, [])
 
-    Logger.warn("Spawn a process to fetch and add friends...")
+    Logger.info("Spawn a process to fetch and add friends...")
 
     spawn(fn ->
-      Enum.each(friends, &(create_friend(&1)))
+      friends
+      |> Enum.map(&create_friend/1)
+      |> Enum.each(fn
+        {:ok, friend} ->
+          Phoenix.PubSub.broadcast(TwitterFeed.PubSub,
+            @friends_topic, {@friends_topic, @friend_added, friend})
+        _ -> nil
+      end)
       TwitterFeed.Accounts.add_friends(user_id, friends)
-      Logger.warn("Done adding friends.")
+      Logger.info("Done adding friends.")
     end)
 
     conn
@@ -77,16 +91,14 @@ defmodule TwitterFeed.Web.SessionController do
     |> redirect(to: Routes.page_path(conn, :index))
   end
 
-  @spec delete_session(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def delete_session(conn, _) do
     conn
     |> clear_session
     |> redirect(to: Routes.session_path(conn, :signin))
   end
 
-  @spec set_current_user(Plug.Conn.t(), Accounts.User.t()) :: Plug.Conn.t()
   defp set_current_user(conn, %Accounts.User{id: id, username: username} = user) do
-    Logger.warn("Setting current user to @#{username}")
+    Logger.info("Setting current user to @#{username}")
 
     conn
     |> assign(:current_user, user)
@@ -94,7 +106,6 @@ defmodule TwitterFeed.Web.SessionController do
     |> configure_session(renew: true)
   end
 
-  @spec create_friend(integer() | binary()) :: {:ok, Accounts.User.t()} | {:error, Ecto.Changeset.t()}
   defp create_friend(id) do
     id
     |> ExTwitter.user
@@ -103,7 +114,6 @@ defmodule TwitterFeed.Web.SessionController do
     |> Accounts.create_user
   end
 
-  @spec params_from_result(any()) :: map()
   defp params_from_result(result) do
     %{
       id: result.id,

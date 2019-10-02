@@ -42,7 +42,7 @@ defmodule TwitterFeed.Web do
       import TwitterFeed.Web.ErrorHelpers
       import TwitterFeed.Web.Gettext
       alias TwitterFeed.Web.Router.Helpers, as: Routes
-      import Phoenix.LiveView, only: [live_render: 2, live_render: 3]
+      import Phoenix.LiveView, only: [live_render: 2, live_render: 3, live_link: 2]
     end
   end
 

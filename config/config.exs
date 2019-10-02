@@ -7,6 +7,13 @@
 # General application configuration
 use Mix.Config
 
+config :twitter_feed, :topics,
+  friends: "friends"
+
+config :twitter_feed, :events,
+  friend_added: [:friend, :added],
+  tweet_marked: [:tweet, :marked]
+
 config :twitter_feed,
   ecto_repos: [TwitterFeed.Repo]
 
