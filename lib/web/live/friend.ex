@@ -4,12 +4,12 @@ defmodule TwitterFeed.Web.FriendLiveView do
   @topic Application.get_env(:twitter_feed, :topics)[:friends]
   @tweet_removed Application.get_env(:twitter_feed, :events)[:tweet_removed]
 
-  def mount(%{user: user, friend: friend}, socket) do
+  def mount(%{user_id: user, friend: friend}, socket) do
     Phoenix.PubSub.subscribe(TwitterFeed.PubSub, @topic)
 
     socket =
       socket
-      |> assign(user: user)
+      |> assign(user_id: user)
       |> assign(friend: friend)
       |> assign(tweets: [])
       |> assign(loading: true)
@@ -21,7 +21,7 @@ defmodule TwitterFeed.Web.FriendLiveView do
 
   def render(assigns), do: TwitterFeed.Web.PageView.render("tweets.html", assigns)
 
-  def handle_event("mark", %{"id" => id}, socket = %{assigns: %{user: %{id: u}, friend: %{id: f}}}) do
+  def handle_event("mark", %{"id" => id}, socket = %{assigns: %{user_id: u, friend: %{id: f}}}) do
     id =
       id
       |> case  do
@@ -38,9 +38,9 @@ defmodule TwitterFeed.Web.FriendLiveView do
     {:noreply, socket}
   end
 
-  def handle_info(:fetch_tweets, socket = %{assigns: %{friend: f, user: u}}) do
+  def handle_info(:fetch_tweets, socket = %{assigns: %{friend: f, user_id: u}}) do
     tweets =
-      TwitterFeed.Accounts.get_last_tweet(u.id, f.id)
+      TwitterFeed.Accounts.get_last_tweet(u, f.id)
       |> case do
         nil -> []
         tweet_id -> [since_id: tweet_id]
