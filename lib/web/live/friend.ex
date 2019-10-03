@@ -4,13 +4,13 @@ defmodule TwitterFeed.Web.FriendLiveView do
   @topic Application.get_env(:twitter_feed, :topics)[:friends]
   @tweet_removed Application.get_env(:twitter_feed, :events)[:tweet_removed]
 
-  def mount(%{user_id: user, friend: friend}, socket) do
+  def mount(%{user_id: uid, friend_id: fid}, socket) do
     Phoenix.PubSub.subscribe(TwitterFeed.PubSub, @topic)
 
     socket =
       socket
-      |> assign(user_id: user)
-      |> assign(friend: friend)
+      |> assign(user_id: uid)
+      |> assign(friend_id: fid)
       |> assign(tweets: [])
       |> assign(loading: true)
 
@@ -21,7 +21,7 @@ defmodule TwitterFeed.Web.FriendLiveView do
 
   def render(assigns), do: TwitterFeed.Web.PageView.render("tweets.html", assigns)
 
-  def handle_event("mark", %{"id" => id}, socket = %{assigns: %{user_id: u, friend: %{id: f}}}) do
+  def handle_event("mark", %{"id" => id}, socket = %{assigns: %{user_id: u, friend: f}}) do
     id =
       id
       |> case  do
@@ -38,14 +38,14 @@ defmodule TwitterFeed.Web.FriendLiveView do
     {:noreply, socket}
   end
 
-  def handle_info(:fetch_tweets, socket = %{assigns: %{friend: f, user_id: u}}) do
+  def handle_info(:fetch_tweets, socket = %{assigns: %{friend_id: f, user_id: u}}) do
     tweets =
-      TwitterFeed.Accounts.get_last_tweet(u, f.id)
+      TwitterFeed.Accounts.get_last_tweet(u, f)
       |> case do
         nil -> []
         tweet_id -> [since_id: tweet_id]
       end
-      |> Kernel.++([count: 200, user_id: f.id])
+      |> Kernel.++([count: 200, user_id: f])
       |> ExTwitter.user_timeline
       |> Enum.map(&Map.from_struct/1)
       |> Enum.map(&(Map.get(&1, :id)))

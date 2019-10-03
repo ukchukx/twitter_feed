@@ -11,7 +11,9 @@
         <label class="name lead"><%= friend.name %></label>
         <br>
         <span class="fa fa-at fa-fw text-muted"></span>
-        <span class="text-muted"><%= friend.username %></span>
+        <a href="<%= Routes.page_path(@socket, :friend, friend.id) %>">
+          <span class="text-muted"><%= friend.username %></span>
+        </a>
       </div>
     </div>
   </li>
