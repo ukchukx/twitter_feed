@@ -48,6 +48,7 @@ defmodule TwitterFeed.Web.FriendLiveView do
       |> Kernel.++([count: 200, user_id: f.id])
       |> ExTwitter.user_timeline
       |> Enum.map(&Map.from_struct/1)
+      |> Enum.map(&(Map.get(&1, :id)))
 
     {:noreply, assign(socket, tweets: tweets, loading: false)}
   end

@@ -9,16 +9,11 @@
 <%= if Enum.count(@tweets) != 0 do %>
 <ul class="list-group pull-down mb-3">
   <%= for tweet <- @tweets do %>
-  <li id="t-<%= tweet.id %>" class="list-group-item">
-  <blockquote class="twitter-tweet" data-lang="en">
-    <p lang="en" dir="ltr">
-      <%= tweet.text %>
-    </p>
-    &mdash; <%= @friend.name %> (@<%= @friend.username %>)
-    <a href="https://twitter.com/<%= @friend.username %>/status/<%= tweet.id %>?ref_src=twsrc%5Etfw"><%= tweet.created_at %></a>
-    
-  </blockquote>
-    <button phx-click="mark" phx-value-id="<%= tweet.id %>" class="btn btn-sm btn-primary btn-icon-split">
+  <li class="list-group-item">
+    <div id="tweet-<%= tweet %>" data-tweet-id="<%= tweet %>" phx-hook="CreateTweet">
+      <i class="fas fa-spinner fa-spin"></i>
+    </div>
+    <button phx-click="mark" phx-value-id="<%= tweet %>" class="btn btn-sm btn-primary btn-icon-split">
       <span class="icon text-white-50">
         <i class="fas fa-check"></i>
       </span>
@@ -29,9 +24,4 @@
   </li>
   <% end %>
 </ul>
-<% end %>
-
-
-<%= if !@loading do %>
-<script src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 <% end %>
