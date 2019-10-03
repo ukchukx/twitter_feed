@@ -11,7 +11,7 @@ port =
 config :twitter_feed, TwitterFeed.Web.Endpoint,
   http: [:inet6, port: port],
   url: [host: "twitterfeed.moview.com.ng", port: 443, scheme: "https"],
-  check_origin: ["https://twitterfeed.moview.com.ng", "localhost:#{port}"],
+  check_origin: false,
   server: true,
   cache_static_manifest: "priv/static/cache_manifest.json"
 
