@@ -4,8 +4,8 @@ defmodule TwitterFeed.MixProject do
   def project do
     [
       app: :twitter_feed,
-      version: "1.0.0",
-      elixir: "~> 1.7",
+      version: "2.0.0",
+      elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -41,12 +41,11 @@ defmodule TwitterFeed.MixProject do
       {:phoenix_pubsub, "~> 1.1"},
       {:phoenix_ecto, "~> 4.0"},
       {:ecto_sql, "~> 3.0"},
-      {:postgrex, ">= 0.0.0"},
+      {:postgrex, ">= 0.14.3"},
       {:phoenix_html, "~> 2.11"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
-      {:distillery, "~> 2.0"},
       {:logger_file_backend, "~> 0.0.10"},
       {:plug_cowboy, "~> 2.0"}
     ]

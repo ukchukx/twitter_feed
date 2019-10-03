@@ -1,6 +1,7 @@
-version: '2'
+version: '3'
 services:
   twitter_feed:
+    build: .
     image: twitter_feed
     container_name: twitter_feed
     restart: unless-stopped

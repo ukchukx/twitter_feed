@@ -12,8 +12,5 @@ config :logger, level: :warn
 
 # Configure your database
 config :twitter_feed, TwitterFeed.Repo,
-  username: System.get_env("TF_DB_USERNAME"),
-  password: System.get_env("TF_DB_PASSWORD"),
   database: "twitter_feed_test",
-  hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox

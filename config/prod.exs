@@ -2,9 +2,16 @@ use Mix.Config
 
 config :twitter_feed, env: :prod
 
+port =
+  case System.fetch_env!("TF_PORT") do
+    x when is_integer(x) -> x
+    x -> x |> Integer.parse |> elem(0)
+  end
+
 config :twitter_feed, TwitterFeed.Web.Endpoint,
-  http: [:inet6, port: System.get_env("TF_PORT") || 13000],
+  http: [:inet6, port: port],
   url: [host: "twitterfeed.moview.com.ng", port: 443, scheme: "https"],
+  check_origin: ["https://twitterfeed.moview.com.ng", "localhost:#{port}"],
   server: true,
   cache_static_manifest: "priv/static/cache_manifest.json"
 
@@ -68,7 +75,5 @@ config :twitter_feed, TwitterFeed.Web.Endpoint,
 
 # Configure your database
 config :twitter_feed, TwitterFeed.Repo,
-  username: System.get_env("TF_DB_USERNAME"),
-  password: System.get_env("TF_DB_PASSWORD"),
   database: "twitter_feed",
   pool_size: 15

@@ -2,5 +2,10 @@ _build
 .elixir_ls
 .git
 .semaphore
-logs
+assets/node_modules
+deps
 test
+logs
+docker-compose.yml
+run.sh
+stop.sh

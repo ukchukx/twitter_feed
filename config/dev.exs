@@ -62,8 +62,5 @@ config :phoenix, :plug_init_mode, :runtime
 
 # Configure your database
 config :twitter_feed, TwitterFeed.Repo,
-  username: System.get_env("TF_DB_USERNAME"),
-  password: System.get_env("TF_DB_PASSWORD"),
-  database: "twitter_feed_dev",
-  hostname: "localhost",
+  database: "twitter_feed",
   pool_size: 10

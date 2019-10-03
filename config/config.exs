@@ -17,11 +17,16 @@ config :twitter_feed, :events,
 config :twitter_feed,
   ecto_repos: [TwitterFeed.Repo]
 
+config :twitter_feed, TwitterFeed.Repo,
+  username: System.fetch_env!("TF_DB_USERNAME"),
+  password: System.fetch_env!("TF_DB_PASSWORD"),
+  hostname: "localhost"
+
 config :extwitter, :oauth, [
-    consumer_key: System.get_env("TF_TWITTER_CONSUMER_KEY"),
-    consumer_secret: System.get_env("TF_TWITTER_CONSUMER_SECRET"),
-    access_token: System.get_env("TF_TWITTER_ACCESS_TOKEN"),
-    access_token_secret: System.get_env("TF_TWITTER_ACCESS_TOKEN_SECRET")
+    consumer_key: System.fetch_env!("TF_TWITTER_CONSUMER_KEY"),
+    consumer_secret: System.fetch_env!("TF_TWITTER_CONSUMER_SECRET"),
+    access_token: System.fetch_env!("TF_TWITTER_ACCESS_TOKEN"),
+    access_token_secret: System.fetch_env!("TF_TWITTER_ACCESS_TOKEN_SECRET")
   ]
 
 
