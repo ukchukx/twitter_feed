@@ -1,5 +1,4 @@
 <div id="wrapper">
-  <%= render "sidebar.html", assigns %>
   <div id="content-wrapper" class="d-flex flex-column">
     <div id="content">
       <%= render "topbar.html", assigns %>

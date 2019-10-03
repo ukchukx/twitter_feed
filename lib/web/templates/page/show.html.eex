@@ -1,11 +1,14 @@
 <div id="wrapper">
-  <%= render "sidebar.html", assigns %>
   <div id="content-wrapper" class="d-flex flex-column">
     <div id="content">
       <%= render "topbar.html", assigns %>
 
       <div class="container-fluid">
-        <h1 class="h3 mb-4 text-gray-800"><%= @friend.name %></h1>
+        <h3 class="mb-4 text-gray-800">
+          <a href="<%= Routes.page_path(@conn, :index) %>">
+            &larr;
+          </a>
+        </h3>
         <div class="row">
           <div class="col-sm-10 col-md-4">
             <div class="card">
