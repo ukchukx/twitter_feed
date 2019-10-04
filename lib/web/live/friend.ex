@@ -21,7 +21,7 @@ defmodule TwitterFeed.Web.FriendLiveView do
 
   def render(assigns), do: TwitterFeed.Web.PageView.render("tweets.html", assigns)
 
-  def handle_event("mark", %{"id" => id}, socket = %{assigns: %{user_id: u, friend: f}}) do
+  def handle_event("mark", %{"id" => id}, socket = %{assigns: %{user_id: u, friend_id: f}}) do
     id =
       id
       |> case  do
