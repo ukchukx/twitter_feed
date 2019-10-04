@@ -3,6 +3,7 @@ defmodule TwitterFeed.Web.FriendListLiveView do
 
   @friends_topic Application.get_env(:twitter_feed, :topics)[:friends]
   @friend_added Application.get_env(:twitter_feed, :events)[:friend_added]
+  @friend_updated Application.get_env(:twitter_feed, :events)[:friend_updated]
 
   def mount(%{user_id: id}, socket) do
     Phoenix.PubSub.subscribe(TwitterFeed.PubSub, @friends_topic)
@@ -20,6 +21,10 @@ defmodule TwitterFeed.Web.FriendListLiveView do
 
   def handle_info({@friends_topic, @friend_added, friend}, socket = %{assigns: %{friends: friends}}) do
     {:noreply, assign(socket, friends: List.insert_at(friends, -1, friend))}
+  end
+
+  def handle_info({@friends_topic, @friend_updated, _}, socket) do
+    {:noreply, load_friends(socket)}
   end
 
   defp load_friends(socket = %{assigns: %{user_id: id}}) do

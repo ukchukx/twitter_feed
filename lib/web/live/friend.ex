@@ -3,6 +3,7 @@ defmodule TwitterFeed.Web.FriendLiveView do
 
   @topic Application.get_env(:twitter_feed, :topics)[:friends]
   @tweet_removed Application.get_env(:twitter_feed, :events)[:tweet_removed]
+  @friend_updated Application.get_env(:twitter_feed, :events)[:friend_updated]
 
   def mount(%{user_id: uid, friend_id: fid}, socket) do
     Phoenix.PubSub.subscribe(TwitterFeed.PubSub, @topic)
@@ -31,7 +32,9 @@ defmodule TwitterFeed.Web.FriendLiveView do
 
 
     case TwitterFeed.Accounts.save_last_tweet(u, f, id) do
-      {:ok, _} -> Phoenix.PubSub.broadcast(TwitterFeed.PubSub, @topic, {@topic, @tweet_removed, id})
+      {:ok, _} ->
+        Phoenix.PubSub.broadcast(TwitterFeed.PubSub, @topic, {@topic, @tweet_removed, id})
+        Phoenix.PubSub.broadcast(TwitterFeed.PubSub, @topic, {@topic, @friend_updated, f})
       {:error, _} -> :ok
     end
 

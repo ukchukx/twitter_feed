@@ -12,6 +12,7 @@ config :twitter_feed, :topics,
 
 config :twitter_feed, :events,
   friend_added: [:friend, :added],
+  friend_updated: [:friend, :updated],
   tweet_marked: [:tweet, :marked]
 
 config :twitter_feed,
