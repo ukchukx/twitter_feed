@@ -19,6 +19,15 @@ defmodule TwitterFeed.Web.FriendListLiveView do
   def render(assigns), do: TwitterFeed.Web.PageView.render("friend-list.html", assigns)
 
 
+  def handle_event("fetch-friends", _, %{assigns: %{user_id: user_id}} = socket) do
+    spawn(fn ->
+      TwitterFeed.Accounts.fetch_friends(user_id)
+    end)
+
+    {:noreply, assign(socket, friends: [])}
+  end
+
+
   def handle_info({@friends_topic, @friend_added, friend}, socket = %{assigns: %{friends: friends}}) do
     {:noreply, assign(socket, friends: List.insert_at(friends, -1, friend))}
   end

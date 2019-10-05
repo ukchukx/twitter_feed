@@ -5,9 +5,6 @@ defmodule TwitterFeed.Web.SessionController do
 
   alias TwitterFeed.Accounts
 
-  @friends_topic Application.get_env(:twitter_feed, :topics)[:friends]
-  @friend_added Application.get_env(:twitter_feed, :events)[:friend_added]
-
   @spec signin(Plug.Conn.t(), map()) :: Plug.Conn.t()
   @spec create_session(Plug.Conn.t(), map()) :: Plug.Conn.t()
   @spec twitter_hook(Plug.Conn.t(), map()) :: Plug.Conn.t()
@@ -66,24 +63,8 @@ defmodule TwitterFeed.Web.SessionController do
     Logger.debug("user: #{inspect(user)}")
 
     # Fetch friends
-    friends =
-      user_id
-      |> ExTwitter.friend_ids
-      |> Map.get(:items, [])
-
-    Logger.info("Spawn a process to fetch and add friends...")
-
     spawn(fn ->
-      friends
-      |> Enum.map(&create_friend/1)
-      |> Enum.each(fn
-        {:ok, friend} ->
-          Phoenix.PubSub.broadcast(TwitterFeed.PubSub,
-            @friends_topic, {@friends_topic, @friend_added, friend})
-        _ -> nil
-      end)
-      TwitterFeed.Accounts.add_friends(user_id, friends)
-      Logger.info("Done adding friends.")
+      TwitterFeed.Accounts.fetch_friends(user_id)
     end)
 
     conn
@@ -104,14 +85,6 @@ defmodule TwitterFeed.Web.SessionController do
     |> assign(:current_user, user)
     |> put_session(:user_id, id)
     |> configure_session(renew: true)
-  end
-
-  defp create_friend(id) do
-    id
-    |> ExTwitter.user
-    |> Map.from_struct
-    |> params_from_result
-    |> Accounts.create_user
   end
 
   defp params_from_result(result) do

@@ -5,32 +5,61 @@ defmodule TwitterFeed.Accounts do
 
   require Logger
 
+  @friends_topic Application.get_env(:twitter_feed, :topics)[:friends]
+  @friend_added Application.get_env(:twitter_feed, :events)[:friend_added]
+
   @spec get_friends(pos_integer) :: list()
   @spec load_friends(Accounts.User.t() | any) :: Accounts.User.t() | any
   @spec get_last_tweet(pos_integer, pos_integer) :: pos_integer | nil
   @spec save_last_tweet(pos_integer, pos_integer, pos_integer) :: {atom, atom | Accounts.Friend.t()}
   @spec get_user_by_id(pos_integer) :: Accounts.User.t() | nil
   @spec create_user(%{required(:id) => pos_integer, optional(atom) => any}) :: {:ok, Accounts.User.t()} | {:error, Ecto.Changeset.t()}
-  @spec add_friends(pos_integer, list(pos_integer)) :: {any, nil | [any]}
+  @spec fetch_friends(pos_integer) :: :ok
 
+  def fetch_friends(user_id) do
+    Logger.info("Fetching friends for #{user_id}")
+
+    friends =
+      user_id
+      |> ExTwitter.friend_ids
+      |> Map.get(:items, [])
+      |> Enum.map(fn id ->
+        id
+        |> create_friend
+        |> case do
+          {:ok, %{id: fid} = friend} ->
+            Logger.info("Created friend #{inspect(friend)}")
+
+            Phoenix.PubSub.broadcast(TwitterFeed.PubSub,@friends_topic, {@friends_topic, @friend_added, friend})
+
+            fid
+
+          _ -> nil
+        end
+      end)
+      |> Enum.filter(&is_integer/1)
+
+    add_friends(user_id, friends)
+
+    Logger.info("Done adding friends.")
+  end
 
   def get_friends(id) do
-    from(u in User, join: f in Friend, where: f.user_id == ^id and u.id == f.friend_id, select: u, order_by: [desc: f.last_tweet])
+    from(u in User, join: f in Friend, where: f.user_id == ^id and u.id == f.friend_id, select: u,
+         order_by: [desc: f.last_tweet])
     |> Repo.all
-    |> Enum.map(fn f = %{profile_img: p} ->
-      %{f | profile_img: String.replace(p, "_normal", "_400x400")}
-    end)
+    |> Enum.map(fn f = %{profile_img: p} -> %{f | profile_img: String.replace(p, "_normal", "_400x400")} end)
   end
 
-  def load_friends(%{id: id} = user) do
-    %{user | friends: get_friends(id)}
-  end
+  def load_friends(%{id: id} = user), do: %{user | friends: get_friends(id)}
   def load_friends(x), do: x
 
   def get_last_tweet(user_id, friend_id) do
-    case Repo.get_by(Friend, [friend_id: friend_id, user_id: user_id]) do
-      nil -> nil
+    Friend
+    |> Repo.get_by([friend_id: friend_id, user_id: user_id])
+    |> case do
       %{last_tweet: id} -> id
+      nil -> nil
     end
   end
 
@@ -46,7 +75,7 @@ defmodule TwitterFeed.Accounts do
     end
   end
 
-  def get_user_by_id(id), do: User |> Repo.get(id) |> load_friends
+  def get_user_by_id(id), do: Repo.get(User, id)
 
   def create_user(%{id: id} = attrs) do
     id
@@ -59,26 +88,40 @@ defmodule TwitterFeed.Accounts do
     |> Repo.insert_or_update
   end
 
-  def add_friends(user_id, friends) do
-    existing_friends = from(f in Friend, where: f.user_id == ^user_id) |> Repo.all
-    existing_friend_ids = Enum.map(existing_friends, fn %{friend_id: id} -> id end)
+  defp add_friends(user_id, friend_ids) do
+    user_id |> friends_query |> where([f], f.friend_id not in ^friend_ids) |> Repo.delete_all
 
-    Logger.info "#{user_id} has #{length(existing_friends)} existing friends"
+    existing =
+      user_id
+      |> friends_query
+      |> Repo.all
+      |> Enum.map(&(&1.friend_id))
 
-    for_deletion = Enum.filter(existing_friends, fn %{friend_id: id } -> id not in friends end)
-
-    Logger.info "#{length(for_deletion)} friends to be deleted for #{user_id}"
-
-    Enum.each(for_deletion, &Repo.delete/1)
-
-    prospective_friends =
-      friends
-      |> Enum.filter(&(&1 not in existing_friend_ids))
+    new_friends =
+      friend_ids
+      |> Enum.filter(&(&1 not in existing))
       |> Enum.map(&(%{user_id: user_id, friend_id: &1}))
 
-    Logger.info "#{length(prospective_friends)} new friends to be created for #{user_id}"
+    Repo.insert_all(Friend, new_friends)
+  end
 
-    Repo.insert_all(Friend, prospective_friends)
+  defp friends_query(id), do: from(f in Friend, where: f.user_id == ^id)
+
+  defp create_friend(id) do
+    id
+    |> ExTwitter.user
+    |> Map.from_struct
+    |> params_from_result
+    |> create_user
+  end
+
+  defp params_from_result(result) do
+    %{
+      id: result.id,
+      username: result.screen_name,
+      name: result.name,
+      profile_img: result.profile_image_url_https
+    }
   end
 
 end

@@ -1,8 +1,9 @@
 defmodule TwitterFeed.Web.FriendLiveView do
   use Phoenix.LiveView
 
-  @topic Application.get_env(:twitter_feed, :topics)[:friends]
-  @tweet_removed Application.get_env(:twitter_feed, :events)[:tweet_removed]
+  @friends_topic Application.get_env(:twitter_feed, :topics)[:friends]
+  @topic Application.get_env(:twitter_feed, :topics)[:friend]
+  @tweet_marked Application.get_env(:twitter_feed, :events)[:tweet_marked]
   @friend_updated Application.get_env(:twitter_feed, :events)[:friend_updated]
 
   def mount(%{user_id: uid, friend_id: fid, username: u}, socket) do
@@ -23,19 +24,25 @@ defmodule TwitterFeed.Web.FriendLiveView do
 
   def render(assigns), do: TwitterFeed.Web.PageView.render("tweets.html", assigns)
 
-  def handle_event("mark", %{"id" => id}, socket = %{assigns: %{user_id: u, friend_id: f}}) do
+  def handle_event("mark", %{"id" => id, "friend" => friend}, socket = %{assigns: %{user_id: u}}) do
     id =
       id
-      |> case  do
+      |> case do
         x when is_integer(x) -> x
         x -> x |> Integer.parse |> elem(0) # Convert string to integer
       end
 
+    friend =
+      friend
+      |> case do
+        x when is_integer(x) -> x
+        x -> x |> Integer.parse |> elem(0) # Convert string to integer
+      end
 
-    case TwitterFeed.Accounts.save_last_tweet(u, f, id) do
+    case TwitterFeed.Accounts.save_last_tweet(u, friend, id) do
       {:ok, _} ->
-        Phoenix.PubSub.broadcast(TwitterFeed.PubSub, @topic, {@topic, @tweet_removed, id})
-        Phoenix.PubSub.broadcast(TwitterFeed.PubSub, @topic, {@topic, @friend_updated, f})
+        Phoenix.PubSub.broadcast(TwitterFeed.PubSub, @topic, {@topic, @tweet_marked, [friend, id]})
+        Phoenix.PubSub.broadcast(TwitterFeed.PubSub, @friends_topic, {@friends_topic, @friend_updated, friend})
       {:error, _} -> :ok
     end
 
@@ -56,8 +63,12 @@ defmodule TwitterFeed.Web.FriendLiveView do
     {:noreply, assign(socket, tweets: tweets, loading: false)}
   end
 
-  def handle_info({@topic, @tweet_removed, id}, socket = %{assigns: %{tweets: tweets}}) do
+  def handle_info({@topic, @tweet_marked, [f, id]}, socket = %{assigns: %{tweets: tweets, friend_id: f}}) do
     {:noreply, assign(socket, tweets: Enum.filter(tweets, &(&1.id > id)))}
+  end
+
+  def handle_info({@topic, @tweet_marked, _}, socket) do
+    {:noreply, socket}
   end
 
 end

@@ -8,7 +8,8 @@
 use Mix.Config
 
 config :twitter_feed, :topics,
-  friends: "friends"
+  friends: "friends",
+  friend: "friend"
 
 config :twitter_feed, :events,
   friend_added: [:friend, :added],
