@@ -5,13 +5,14 @@ defmodule TwitterFeed.Web.FriendLiveView do
   @tweet_removed Application.get_env(:twitter_feed, :events)[:tweet_removed]
   @friend_updated Application.get_env(:twitter_feed, :events)[:friend_updated]
 
-  def mount(%{user_id: uid, friend_id: fid}, socket) do
+  def mount(%{user_id: uid, friend_id: fid, username: u}, socket) do
     Phoenix.PubSub.subscribe(TwitterFeed.PubSub, @topic)
 
     socket =
       socket
       |> assign(user_id: uid)
       |> assign(friend_id: fid)
+      |> assign(username: u)
       |> assign(tweets: [])
       |> assign(loading: true)
 
@@ -51,7 +52,6 @@ defmodule TwitterFeed.Web.FriendLiveView do
       |> Kernel.++([count: 200, user_id: f])
       |> ExTwitter.user_timeline
       |> Enum.map(&Map.from_struct/1)
-      |> Enum.map(&(Map.get(&1, :id)))
 
     {:noreply, assign(socket, tweets: tweets, loading: false)}
   end

@@ -10,10 +10,14 @@
 <ul class="list-group pull-down mb-3">
   <%= for tweet <- @tweets do %>
   <li class="list-group-item">
-    <div id="tweet-<%= tweet %>" data-tweet-id="<%= tweet %>" phx-hook="CreateTweet">
+    <div id="pre-tweet-<%= tweet.id %>">
       <i class="fas fa-spinner fa-spin"></i>
+      <p><%= tweet.text %></p>
+      <a href="https://twitter.com/<%= @username %>/status/<%= tweet.id %>"><%= tweet.created_at %></a>
     </div>
-    <button phx-click="mark" phx-value-id="<%= tweet %>" class="btn btn-sm btn-primary btn-icon-split">
+    <div id="tweet-<%= tweet.id %>" data-tweet-id="<%= tweet.id %>" phx-hook="CreateTweet">
+    </div>
+    <button phx-click="mark" phx-value-friend="<%= @friend_id %>" phx-value-id="<%= tweet.id %>" class="btn btn-sm btn-primary btn-icon-split">
       <span class="icon text-white-50">
         <i class="fas fa-check"></i>
       </span>
