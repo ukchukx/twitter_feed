@@ -7,6 +7,7 @@ defmodule TwitterFeed.MixProject do
       version: "2.0.0",
       elixir: "~> 1.9",
       elixirc_paths: elixirc_paths(Mix.env()),
+      elixirc_options: debug_info(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
@@ -27,6 +28,9 @@ defmodule TwitterFeed.MixProject do
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
+
+  defp debug_info(:prod), do: [debug_info: false]
+  defp debug_info(_), do: [debug_info: true]
 
   # Specifies your project dependencies.
   #
