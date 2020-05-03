@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "bootstrap": "^4.3.1",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "phoenix": "file:../deps/phoenix",
     "phoenix_live_view": "file:../deps/phoenix_live_view",
     "popper.js": "^1.15.0"
