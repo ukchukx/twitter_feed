@@ -37,8 +37,9 @@ defmodule TwitterFeed.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false},
-      {:extwitter, "~> 0.8"},
+      {:confex, "~> 3.4.0"},
+      {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
+      {:extwitter, "~> 0.13"},
       {:oauther, "~> 1.1"},
       {:phoenix, "~> 1.4.9"},
       {:phoenix_live_view, "~> 0.3.0"},
@@ -50,8 +51,7 @@ defmodule TwitterFeed.MixProject do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
-      {:poison, "~> 3.1"},
-      {:logger_file_backend, "~> 0.0.10"},
+      # {:poison, "~> 3.1"},
       {:plug_cowboy, "~> 2.0"}
     ]
   end

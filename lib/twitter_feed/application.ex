@@ -7,26 +7,26 @@ defmodule TwitterFeed.Application do
 
   require Logger
 
+  @app :twitter_feed
+
   def start(_type, _args) do
-    # List all child processes to be supervised
+    Confex.resolve_env!(@app)
+    Confex.resolve_env!(:extwitter)
+
     children = [
       # Start the Ecto repository
       TwitterFeed.Repo,
       # Start the endpoint when the application starts
       TwitterFeed.Web.Endpoint
-      # Starts a worker by calling: TwitterFeed.Worker.start_link(arg)
-      # {TwitterFeed.Worker, arg},
     ]
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
     opts = [strategy: :one_for_one, name: TwitterFeed.Supervisor]
 
     case Supervisor.start_link(children, opts) do
       {:ok, _} = res ->
-        if Application.get_env(:twitter_feed, :env) != :test do
+        if Application.get_env(@app, :env) != :test do
           Logger.info "Running migrations"
-          path = Application.app_dir(:twitter_feed, "priv/repo/migrations")
+          path = Application.app_dir(@app, "priv/repo/migrations")
           Ecto.Migrator.run(TwitterFeed.Repo, path, :up, all: true)
         end
 
