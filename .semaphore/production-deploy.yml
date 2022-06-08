@@ -18,8 +18,8 @@ blocks:
             - cache restore k8s-$SEMAPHORE_WORKFLOW_ID
             - chmod 0600 ~/j-cluster-kubeconfig.yaml
             - export KUBECONFIG=~/j-cluster-kubeconfig.yaml
-            - kubectl -n $NAMESPACE apply -f k8s/deployment.yml
             - kubectl -n $NAMESPACE apply -f k8s/secrets.yml
+            - kubectl -n $NAMESPACE apply -f k8s/deployment.yml
             - kubectl -n $NAMESPACE apply -f k8s/ingress.yml
             - kubectl -n $NAMESPACE apply -f k8s/monitoring.yml
             - kubectl -n $NAMESPACE rollout restart deployment twitter-feed
