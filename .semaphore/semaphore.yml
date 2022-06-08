@@ -32,7 +32,7 @@ blocks:
           commands:
             - docker build -t twitter_feed .
             - echo $HEADLESS_COMMERCE_PAT | docker login ghcr.io -u ukchukx --password-stdin
-            - docker image tag stash ghcr.io/headless-commerce/twitter_feed
+            - docker image tag twitter_feed ghcr.io/headless-commerce/twitter_feed
             - docker image push ghcr.io/headless-commerce/twitter_feed
             - cache store k8s-$SEMAPHORE_WORKFLOW_ID k8s
 
