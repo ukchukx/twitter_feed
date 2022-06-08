@@ -2,24 +2,25 @@
   "repository": {},
   "license": "MIT",
   "scripts": {
-    "build": "NODE_ENV=production webpack -p --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
-    "watch": "NODE_ENV=development webpack --watch --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js",
-    "dev": "NODE_ENV=development webpack --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
+    "build": "NODE_ENV=production mix --production",
+    "watch": "NODE_ENV=development mix watch"
   },
   "dependencies": {
     "bootstrap": "^4.3.1",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "phoenix": "file:../deps/phoenix",
     "phoenix_live_view": "file:../deps/phoenix_live_view",
-    "popper.js": "^1.15.0"
+    "popper.js": "^1.16.1"
   },
   "devDependencies": {
     "css-loader": "^2.1.0",
-    "laravel-mix": "^4.0.14",
+    "laravel-mix": "^6.0.48",
+    "postcss": "^8.4.14",
+    "postcss-loader": "^7.0.0",
     "sass": "^1.17.0",
     "sass-loader": "^7.1.0",
-    "vue-template-compiler": "^2.6.10",
-    "webpack": "^4.29.4",
+    "vue-template-compiler": "^2.6.14",
+    "webpack": "^5.73.0",
     "webpack-cli": "^3.2.3"
   }
 }
