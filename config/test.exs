@@ -12,5 +12,5 @@ config :logger, level: :warn
 
 # Configure your database
 config :twitter_feed, TwitterFeed.Repo,
-  database: {:system, "TF_DB_TEST_NAME"},
+  database: {:system, "TF_DB_TEST_NAME", "twitter_feed_test"},
   pool: Ecto.Adapters.SQL.Sandbox
