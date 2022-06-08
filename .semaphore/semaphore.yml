@@ -3,7 +3,7 @@ name: TwitterFeed app pipeline
 agent:
   machine:
     type: e1-standard-2
-    os_image: ubuntu1804
+    os_image: ubuntu2004
 
 blocks:
   - name: Check master
@@ -13,24 +13,28 @@ blocks:
           commands:
             - if [ "$SEMAPHORE_GIT_BRANCH" != "master" ]; then false; fi
             - echo 'Master branch received'
-
+  
   - name: Build Docker image
     task:
       secrets:
-        - name: twitter_feed_secrets
+        - name: headless-commerce-pat
       prologue:
         commands:
           - checkout
+          - sem-version elixir 1.11
+          - mix local.hex --force
+          - mix local.rebar --force
+          - cache restore
+          - mix do deps.get, compile
+          - cache store
       jobs:
         - name: build image
           commands:
-            - cp ../.env ./.env.sh
-            - ./build_docker.sh
-            - docker save -o twitter_feed.tar.gz twitter_feed
-            - cache store image-$SEMAPHORE_WORKFLOW_ID twitter_feed.tar.gz
-            - cache store dockercompose-$SEMAPHORE_WORKFLOW_ID docker-compose.yml
-            - cache store run-$SEMAPHORE_WORKFLOW_ID run.sh
-            - cache store stop-$SEMAPHORE_WORKFLOW_ID stop.sh
+            - docker build -t twitter_feed .
+            - echo $HEADLESS_COMMERCE_PAT | docker login ghcr.io -u ukchukx --password-stdin
+            - docker image tag stash ghcr.io/headless-commerce/twitter_feed
+            - docker image push ghcr.io/headless-commerce/twitter_feed
+            - cache store k8s-$SEMAPHORE_WORKFLOW_ID k8s
 
 promotions:
   - name: Deploy to production

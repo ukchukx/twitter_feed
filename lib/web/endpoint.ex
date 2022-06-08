@@ -6,6 +6,10 @@ defmodule TwitterFeed.Web.Endpoint do
     longpoll: false
 
   socket "/live", Phoenix.LiveView.Socket
+
+  # Handle health checks
+  plug TwitterFeed.Web.Plug.LivenessProbe
+  plug TwitterFeed.Web.Plug.ReadinessProbe
   # Serve at "/" the static files from "priv/static" directory.
   #
   # You should set gzip to true if you are running phx.digest

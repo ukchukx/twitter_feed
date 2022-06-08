@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: twitter-feed
+  labels:
+    app: twitter-feed
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: twitter-feed
+  template:
+    metadata:
+      labels:
+        app: twitter-feed
+    spec:
+      imagePullSecrets:
+      - name: headless-commerce-package-access-token
+      containers:
+      - name: twitter-feed
+        image: ghcr.io/headless-commerce/twitter-feed
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 4000
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 4000
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 4000
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        env:
+        - name: TF_DB_HOST
+          value: 'postgresql'
+        - name: TF_DB_NAME
+          value: 'twitter_feed'
+        - name: TF_SCHEME
+          value: 'https'
+        - name: TF_HOSTNAME
+          value: 'twitterfeed.moview.com.ng'
+        - name: TF_TWITTER_CONSUMER_KEY
+          valueFrom:
+            secretKeyRef:
+              name: twitter-feed-secrets
+              key: twitterConsumerKey
+        - name: TF_TWITTER_CONSUMER_KEY_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: twitter-feed-secrets
+              key: twitterConsumerKeySecret
+        - name: TF_TWITTER_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: twitter-feed-secrets
+              key: twitterAccessToken
+        - name: TF_TWITTER_ACCESS_TOKEN_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: twitter-feed-secrets
+              key: twitterAccessTokenSecret
+        - name: TF_SECRET_KEY_BASE
+          valueFrom:
+            secretKeyRef:
+              name: twitter-feed-secrets
+              key: secretKeyBase
+        - name: TF_DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: twitter-feed-secrets
+              key: dbUser
+        - name: TF_DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: twitter-feed-secrets
+              key: dbPass
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: twitter-feed
+  labels:
+    app: twitter-feed
+    release: kube-prometheus-stack
+spec:
+  ports:
+  - name: web
+    port: 80
+    targetPort: 4000
+  selector:
+    app: twitter-feed

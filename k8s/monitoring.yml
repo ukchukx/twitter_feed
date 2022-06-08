@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: twitter-feed
+  labels:
+    app: twitter-feed
+    release: kube-prometheus-stack
+spec:
+  endpoints:
+  - port: web
+    interval: 30s
+    path: '/metrics'
+  namespaceSelector:
+    matchNames:
+    - twitter-feed
+  selector:
+    matchLabels:
+      app: twitter-feed
+      release: kube-prometheus-stack

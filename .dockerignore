@@ -5,7 +5,3 @@ _build
 assets/node_modules
 deps
 test
-logs
-docker-compose.yml
-run.sh
-stop.sh
