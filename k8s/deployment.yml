@@ -18,7 +18,7 @@ spec:
       - name: headless-commerce-package-access-token
       containers:
       - name: twitter-feed
-        image: ghcr.io/headless-commerce/twitter-feed
+        image: ghcr.io/headless-commerce/twitter_feed
         imagePullPolicy: Always
         ports:
         - containerPort: 4000
