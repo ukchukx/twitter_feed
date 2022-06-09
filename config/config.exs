@@ -34,7 +34,11 @@ config :extwitter, :oauth, [
   ]
 
 config :twitter_feed, TwitterFeed.Web.Endpoint,
-  url: [host: {:system, "TF_HOSTNAME", "localhost"}, scheme: {:system, "TF_SCHEME", "http"}],
+  url: [
+    host: {:system, "TF_HOSTNAME", "localhost"},
+    scheme: {:system, "TF_SCHEME", "http"},
+    port: {:system, :integer, "TF_URL_PORT", 4000}
+  ],
   http: [:inet6, port: 4000],
   check_origin: false,
   secret_key_base: {:system, "TF_SECRET_KEY_BASE", "dummy"},

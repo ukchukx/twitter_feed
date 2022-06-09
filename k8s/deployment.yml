@@ -41,6 +41,8 @@ spec:
           value: 'twitter_feed'
         - name: TF_SCHEME
           value: 'https'
+        - name: TF_URL_PORT
+          value: '443'
         - name: TF_HOSTNAME
           value: 'twitterfeed.moview.com.ng'
         - name: TF_TWITTER_CONSUMER_KEY
