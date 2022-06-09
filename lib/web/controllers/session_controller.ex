@@ -26,31 +26,27 @@ defmodule TwitterFeed.Web.SessionController do
       |> Routes.session_url(:twitter_hook)
       |> ExTwitter.request_token
 
-    Logger.debug("token: #{inspect(token)}")
-
-    {:ok, authenticate_url} = ExTwitter.authenticate_url(token.oauth_token)
-    redirect conn, external: authenticate_url
+    {:ok, url} = ExTwitter.authenticate_url(token.oauth_token)
+    Logger.info("Redirecting to #{url} for authentication")
+    redirect conn, external: url
   end
 
 
   def twitter_hook(conn, %{"oauth_token" => t, "oauth_verifier" => v}) do
-    {:ok, at = %{oauth_token: ot, oauth_token_secret: ots}} = ExTwitter.access_token(v, t)
-
-    Logger.debug("access_token: #{inspect(at)}")
+    {:ok, %{oauth_token: ot, oauth_token_secret: ots}} = ExTwitter.access_token(v, t)
+    config = Application.get_env(:extwitter, :oauth)
 
     ExTwitter.configure(
       :process,
       [
-        consumer_key: Application.get_env(:extwitter, :oauth)[:consumer_key],
-        consumer_secret: Application.get_env(:extwitter, :oauth)[:consumer_secret],
+        consumer_key: config[:consumer_key],
+        consumer_secret: config[:consumer_secret],
         access_token: ot,
         access_token_secret: ots
       ]
     )
 
     %{id: user_id} = user_info = ExTwitter.verify_credentials()
-
-    Logger.debug("user_info: #{inspect(user_info)}")
 
     params =
       user_info
@@ -59,8 +55,6 @@ defmodule TwitterFeed.Web.SessionController do
       |> Map.put(:access_token_secret, ots)
 
     {:ok, user} = Accounts.create_user(params)
-
-    Logger.debug("user: #{inspect(user)}")
 
     # Fetch friends
     spawn(fn ->
@@ -96,4 +90,3 @@ defmodule TwitterFeed.Web.SessionController do
     }
   end
 end
-
