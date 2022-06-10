@@ -6,6 +6,12 @@ import hooks from './hooks';
 // import socket from "./socket"
 
 window.jQuery = window.$ = require('jquery');
+window.addEventListener('beforeunload', function (event) {
+    if (event.currentTarget.location.pathname.includes('/friend/')) {
+        localStorage.removeItem('creating');
+        localStorage.removeItem('waiting');
+    }
+});
 
 const liveSocket = new LiveSocket('/live', Socket, { hooks });
 liveSocket.connect();
