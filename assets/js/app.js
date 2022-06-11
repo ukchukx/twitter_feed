@@ -1,6 +1,7 @@
 import LiveSocket from 'phoenix_live_view';
 import { Socket } from 'phoenix';
 import hooks from './hooks';
+import { deleteLists } from './storage';
 
 // Import local files
 // import socket from "./socket"
@@ -8,8 +9,7 @@ import hooks from './hooks';
 window.jQuery = window.$ = require('jquery');
 window.addEventListener('beforeunload', function (event) {
     if (event.currentTarget.location.pathname.includes('/friend/')) {
-        localStorage.removeItem('creating');
-        localStorage.removeItem('waiting');
+        deleteLists(event.currentTarget.location.pathname.replace('/friend/', ''));
     }
 });
 
