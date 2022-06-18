@@ -25,13 +25,33 @@ defmodule TwitterFeed.Web.FriendListLiveView do
     {:noreply, socket}
   end
 
+  def handle_event("find_friend", %{"value" => term}, socket = %{assigns: %{friends: friends}}) do
+    friend_list =
+      term
+      |> case do
+        "" -> Map.values(friends)
+        term ->
+          friends
+          |> Map.values()
+          |> Enum.filter(fn %{name: n, username: u} ->
+            contains_name? = n |> String.downcase() |> String.contains?(term)
+            contains_username? = String.contains?(u, term)
+            contains_username? or contains_name?
+          end)
+      end
+
+    {:noreply, assign(socket, friend_list: friend_list)}
+  end
+
 
   def handle_info({@friends_topic, @friend_added, %{id: id} = friend}, socket = %{assigns: %{friends: friends}}) do
-    {:noreply, assign(socket, friends: Map.put(friends, id, friend))}
+    friends = Map.put(friends, id, friend)
+    {:noreply, assign(socket, friends: friends, friend_list: Map.values(friends))}
   end
 
   def handle_info({@friends_topic, @friend_removed, %{id: id}}, socket = %{assigns: %{friends: friends}}) do
-    {:noreply, assign(socket, friends: Map.delete(friends, id))}
+    friends = Map.delete(friends, id)
+    {:noreply, assign(socket, friends: friends, friend_list: Map.values(friends))}
   end
 
   def handle_info({@friends_topic, @friend_updated, _}, socket) do
@@ -44,6 +64,6 @@ defmodule TwitterFeed.Web.FriendListLiveView do
       |> TwitterFeed.Accounts.get_friends()
       |> Enum.reduce(%{}, fn friend, map -> Map.put(map, friend.id, friend) end)
 
-    assign(socket, friends: friends)
+    assign(socket, friends: friends, friend_list: Map.values(friends))
   end
 end
