@@ -6,10 +6,10 @@
     Reload
   </span>
 </button>
-<p class="mt-2 mb-3"><%= length(@friends) %> friends</p>
+<p class="mt-2 mb-3"><%= @friends |> Map.values() |> length() %> friends</p>
 
 <div class="row">
-  <%= for friend <- @friends do %>
+  <%= for friend <- Map.values(@friends) do %>
   <div class="col-sm-12 col-md-3 mb-2">
     <div class="card">
       <div class="card-body">

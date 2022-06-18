@@ -1,23 +1,24 @@
 defmodule TwitterFeed.Accounts do
   alias TwitterFeed.Accounts.{Friend,User}
-  alias TwitterFeed.Repo
+  alias TwitterFeed.{PubSub, Repo}
   import Ecto.Query
 
   require Logger
 
   @friends_topic Application.get_env(:twitter_feed, :topics)[:friends]
-  @friend_added Application.get_env(:twitter_feed, :events)[:friend_added]
+
 
   @spec get_friends(pos_integer) :: list()
-  @spec load_friends(Accounts.User.t() | any) :: Accounts.User.t() | any
+  @spec load_friends(User.t() | any) :: User.t() | any
   @spec get_last_tweet(pos_integer, pos_integer) :: pos_integer | nil
-  @spec save_last_tweet(pos_integer, pos_integer, pos_integer) :: {atom, atom | Accounts.Friend.t()}
-  @spec get_user_by_id(pos_integer) :: Accounts.User.t() | nil
-  @spec create_user(%{required(:id) => pos_integer, optional(atom) => any}) :: {:ok, Accounts.User.t()} | {:error, Ecto.Changeset.t()}
+  @spec save_last_tweet(pos_integer, pos_integer, pos_integer) :: {atom, atom | Friend.t()}
+  @spec get_user_by_id(pos_integer) :: User.t() | nil
+  @spec create_user(%{required(:id) => pos_integer, optional(atom) => any}) :: {:ok, User.t()} | {:error, Ecto.Changeset.t()}
   @spec fetch_friends(pos_integer) :: :ok
 
   def fetch_friends(user_id) do
     Logger.info("Fetching friends for #{user_id}")
+    friend_added = Application.get_env(:twitter_feed, :events)[:friend_added]
 
     friends =
       user_id
@@ -29,8 +30,7 @@ defmodule TwitterFeed.Accounts do
         |> case do
           {:ok, %{id: fid} = friend} ->
             Logger.info("Created friend #{inspect(friend)}")
-
-            Phoenix.PubSub.broadcast(TwitterFeed.PubSub,@friends_topic, {@friends_topic, @friend_added, friend})
+            Phoenix.PubSub.broadcast(PubSub, @friends_topic, {@friends_topic, friend_added, friend})
 
             fid
 
@@ -89,7 +89,17 @@ defmodule TwitterFeed.Accounts do
   end
 
   defp add_friends(user_id, friend_ids) do
-    user_id |> friends_query |> where([f], f.friend_id not in ^friend_ids) |> Repo.delete_all
+    friend_removed = Application.get_env(:twitter_feed, :events)[:friend_removed]
+    removed_friends_query =
+      user_id
+      |> friends_query
+      |> where([f], f.friend_id not in ^friend_ids)
+
+    removed_friends_query
+    |> Repo.all()
+    |> Enum.each(& Phoenix.PubSub.broadcast(PubSub, @friends_topic, {@friends_topic, friend_removed, &1}))
+
+    Repo.delete_all(removed_friends_query)
 
     existing =
       user_id

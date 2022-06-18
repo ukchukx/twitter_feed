@@ -12,9 +12,10 @@ config :twitter_feed, :topics,
   friend: "friend"
 
 config :twitter_feed, :events,
-  friend_added: [:friend, :added],
-  friend_updated: [:friend, :updated],
-  tweet_marked: [:tweet, :marked]
+  friend_added: ~w[friend added]a,
+  friend_updated: ~w[friend updated]a,
+  friend_removed: ~w[friend removed]a,
+  tweet_marked: ~w[tweet marked]a
 
 config :twitter_feed,
   ecto_repos: [TwitterFeed.Repo]
