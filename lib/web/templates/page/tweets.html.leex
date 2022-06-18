@@ -7,9 +7,9 @@
 <% end %>
 
 <%= if Enum.count(@tweets) != 0 do %>
-<ul class="list-group pull-down mb-3">
+<div class="row mb-3">
   <%= for tweet <- @tweets do %>
-  <li class="list-group-item">
+  <div class="col-sm-12 col-md-3">
     <div id="pre-tweet-<%= tweet.id %>">
       <i class="fas fa-spinner fa-spin"></i>
       <p><%= tweet.text %></p>
@@ -25,7 +25,7 @@
         Mark as read
       </span>
     </button>
-  </li>
+  </div>
   <% end %>
-</ul>
+</div>
 <% end %>
