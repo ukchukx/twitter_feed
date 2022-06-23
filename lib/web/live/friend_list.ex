@@ -22,7 +22,7 @@ defmodule TwitterFeed.Web.FriendListLiveView do
 
   def handle_event("fetch-friends", _, %{assigns: %{user_id: user_id}} = socket) do
     spawn(fn -> TwitterFeed.Accounts.fetch_friends(user_id) end)
-    {:noreply, socket}
+    {:noreply, assign(socket, friend_list: [], friends: %{})}
   end
 
   def handle_event("find_friend", %{"value" => term}, socket = %{assigns: %{friends: friends}}) do
