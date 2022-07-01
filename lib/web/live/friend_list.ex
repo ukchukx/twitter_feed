@@ -35,7 +35,7 @@ defmodule TwitterFeed.Web.FriendListLiveView do
           |> Map.values()
           |> Enum.filter(fn %{name: n, username: u} ->
             contains_name? = n |> String.downcase() |> String.contains?(term)
-            contains_username? = String.contains?(u, term)
+            contains_username? = u |> String.downcase() |> String.contains?(term)
             contains_username? or contains_name?
           end)
       end
