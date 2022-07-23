@@ -25,6 +25,7 @@ defmodule TwitterFeed.Accounts.User do
     field :profile_img, :string
     field :username, :string
     field :name, :string
+    field :friend, :map, virtual: true
     field :friends, {:array, :map}, default: [], virtual: true
 
     timestamps()

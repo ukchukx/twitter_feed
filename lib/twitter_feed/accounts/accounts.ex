@@ -45,9 +45,13 @@ defmodule TwitterFeed.Accounts do
   end
 
   def get_friends(id) do
-    from(u in User, join: f in Friend, where: f.user_id == ^id and u.id == f.friend_id, select: u,
+    from(u in User,
+        join: f in Friend,
+        where: f.user_id == ^id and u.id == f.friend_id,
+        select: {u, f},
          order_by: [desc: f.last_tweet])
     |> Repo.all
+    |> Enum.map(fn {u, f} -> %{u | friend: f} end)
     |> Enum.map(fn f = %{profile_img: p} -> %{f | profile_img: String.replace(p, "_normal", "_400x400")} end)
   end
 
