@@ -40,6 +40,7 @@ defmodule TwitterFeed.Web.FriendListLiveView do
           end)
       end
 
+
     {:noreply, assign(socket, friend_list: friend_list)}
   end
 
@@ -59,11 +60,11 @@ defmodule TwitterFeed.Web.FriendListLiveView do
   end
 
   defp load_friends(socket = %{assigns: %{user_id: id}}) do
-    friends =
-      id
-      |> TwitterFeed.Accounts.get_friends()
+    friends = TwitterFeed.Accounts.get_friends(id)
+    friend_map =
+      friends
       |> Enum.reduce(%{}, fn friend, map -> Map.put(map, friend.id, friend) end)
 
-    assign(socket, friends: friends, friend_list: Map.values(friends))
+    assign(socket, friends: friend_map, friend_list: friends)
   end
 end
