@@ -56,7 +56,7 @@ defmodule TwitterFeed.Web.FriendLiveView do
         nil -> []
         tweet_id -> [since_id: tweet_id]
       end
-      |> Kernel.++([count: 80, user_id: f])
+      |> Kernel.++([count: 50, user_id: f])
       |> ExTwitter.user_timeline
       |> Enum.map(&Map.from_struct/1)
       |> Enum.reverse()
