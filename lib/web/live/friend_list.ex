@@ -19,10 +19,22 @@ defmodule TwitterFeed.Web.FriendListLiveView do
 
   def render(assigns), do: TwitterFeed.Web.PageView.render("friend-list.html", assigns)
 
-
   def handle_event("fetch-friends", _, %{assigns: %{user_id: user_id}} = socket) do
     spawn(fn -> TwitterFeed.Accounts.fetch_friends(user_id) end)
     {:noreply, assign(socket, friend_list: [], friends: %{})}
+  end
+
+  def handle_event("mark-all", _, %{assigns: %{friends: friends, user_id: user_id}} = socket) do
+    friends =
+      friends
+      |> Map.values()
+      |> Enum.map(& &1.id)
+
+    friends
+    |> Enum.chunk_every(ideal_chunk_size(friends))
+    |> Enum.each(& mark_latest_tweets(&1, user_id))
+
+    {:noreply, socket}
   end
 
   def handle_event("find_friend", %{"value" => term}, socket = %{assigns: %{friends: friends}}) do
@@ -66,5 +78,28 @@ defmodule TwitterFeed.Web.FriendListLiveView do
       |> Enum.reduce(%{}, fn friend, map -> Map.put(map, friend.id, friend) end)
 
     assign(socket, friends: friend_map, friend_list: friends)
+  end
+
+  defp mark_latest_tweets(friends, user_id) do
+    spawn(fn ->
+      friends
+      |> Enum.each(fn friend_id ->
+        [count: 1, user_id: friend_id]
+        |> TwitterFeed.user_timeline()
+        |> case do
+          [%{id: id}] -> TwitterFeed.save_last_tweet(user_id, friend_id, id)
+          [] -> :ok
+        end
+      end)
+    end)
+  end
+
+  defp ideal_chunk_size(items) do
+    num_schedulers = System.schedulers_online()
+
+    items
+    |> length()
+    |> Integer.floor_div(num_schedulers)
+    |> max(num_schedulers)
   end
 end

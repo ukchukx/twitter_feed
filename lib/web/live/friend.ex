@@ -4,7 +4,6 @@ defmodule TwitterFeed.Web.FriendLiveView do
   @friends_topic Application.get_env(:twitter_feed, :topics)[:friends]
   @topic Application.get_env(:twitter_feed, :topics)[:friend]
   @tweet_marked Application.get_env(:twitter_feed, :events)[:tweet_marked]
-  @friend_updated Application.get_env(:twitter_feed, :events)[:friend_updated]
 
   def mount(%{user_id: uid, friend_id: fid, username: u}, socket) do
     Phoenix.PubSub.subscribe(TwitterFeed.PubSub, @topic)
@@ -25,26 +24,14 @@ defmodule TwitterFeed.Web.FriendLiveView do
   def render(assigns), do: TwitterFeed.Web.PageView.render("tweets.html", assigns)
 
   def handle_event("mark", %{"id" => id, "friend" => friend}, socket = %{assigns: %{user_id: u}}) do
-    id =
-      id
-      |> case do
-        x when is_integer(x) -> x
-        x -> x |> Integer.parse |> elem(0) # Convert string to integer
-      end
+    TwitterFeed.save_last_tweet(u, friend, id)
 
-    friend =
-      friend
-      |> case do
-        x when is_integer(x) -> x
-        x -> x |> Integer.parse |> elem(0) # Convert string to integer
-      end
+    {:noreply, socket}
+  end
 
-    case TwitterFeed.Accounts.save_last_tweet(u, friend, id) do
-      {:ok, _} ->
-        Phoenix.PubSub.broadcast(TwitterFeed.PubSub, @topic, {@topic, @tweet_marked, [friend, id]})
-        Phoenix.PubSub.broadcast(TwitterFeed.PubSub, @friends_topic, {@friends_topic, @friend_updated, friend})
-      {:error, _} -> :ok
-    end
+  def handle_event("mark-all", %{"friend" => f}, socket = %{assigns: %{user_id: u, tweets: tweets}}) do
+    %{id: id} = List.last(tweets)
+    TwitterFeed.save_last_tweet(u, f, id)
 
     {:noreply, socket}
   end
@@ -53,12 +40,10 @@ defmodule TwitterFeed.Web.FriendLiveView do
     tweets =
       TwitterFeed.Accounts.get_last_tweet(u, f)
       |> case do
-        nil -> []
-        tweet_id -> [since_id: tweet_id]
+        nil -> [user_id: f]
+        tweet_id -> [since_id: tweet_id, user_id: f]
       end
-      |> Kernel.++([count: 50, user_id: f])
-      |> ExTwitter.user_timeline
-      |> Enum.map(&Map.from_struct/1)
+      |> TwitterFeed.user_timeline
       |> Enum.reverse()
 
     {:noreply, assign(socket, tweets: tweets, loading: false)}

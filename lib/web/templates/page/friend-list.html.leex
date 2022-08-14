@@ -1,5 +1,5 @@
 <div class="row">
-  <div class="col-sm-6">
+  <div class="col-sm-1">
     <button phx-click="fetch-friends" class="mb-3 btn btn-sm btn-primary btn-icon-split">
       <span class="icon text-white-50">
         <i class="fas fa-sync"></i>
@@ -9,7 +9,17 @@
       </span>
     </button>
   </div>
-  <div class="col-sm-3"></div>
+  <div class="col-sm-2">
+    <button phx-click="mark-all" class="mb-3 btn btn-sm btn-primary btn-icon-split">
+      <span class="icon text-white-50">
+        <i class="fas fa-sync"></i>
+      </span>
+      <span class="text">
+        Mark all as read
+      </span>
+    </button>
+  </div>
+  <div class="col-sm-6"></div>
   <div class="col-sm-3">
     <input class="form-control" type="text" name="search" phx-keyup="find_friend" phx-debounce="500" />
   </div>

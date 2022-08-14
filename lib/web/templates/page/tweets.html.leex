@@ -6,6 +6,21 @@
 <h4>No new tweets</h4>
 <% end %>
 
+<%= if !@loading and Enum.count(@tweets) != 0 do %>
+<div class="row">
+  <div class="col-sm-2">
+    <button phx-click="mark-all" phx-value-friend="<%= @friend_id %>" class="mb-3 btn btn-sm btn-primary btn-icon-split">
+      <span class="icon text-white-50">
+        <i class="fas fa-sync"></i>
+      </span>
+      <span class="text">
+        Mark all as read
+      </span>
+    </button>
+  </div>
+</div>
+<% end %>
+
 <%= if Enum.count(@tweets) != 0 do %>
 <div class="row mb-3">
   <%= for tweet <- @tweets do %>
