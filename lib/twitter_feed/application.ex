@@ -5,6 +5,8 @@ defmodule TwitterFeed.Application do
 
   use Application
 
+  alias TwitterFeed.{PubSub, Repo, Web}
+
   require Logger
 
   @app :twitter_feed
@@ -15,9 +17,10 @@ defmodule TwitterFeed.Application do
 
     children = [
       # Start the Ecto repository
-      TwitterFeed.Repo,
+      Repo,
+      {Phoenix.PubSub, name: PubSub},
       # Start the endpoint when the application starts
-      TwitterFeed.Web.Endpoint
+      Web.Endpoint
     ]
 
     opts = [strategy: :one_for_one, name: TwitterFeed.Supervisor]
@@ -25,7 +28,7 @@ defmodule TwitterFeed.Application do
     case Supervisor.start_link(children, opts) do
       {:ok, _} = res ->
         if Application.get_env(@app, :env) != :test do
-          Logger.info "Running migrations"
+          Logger.info("Running migrations")
           path = Application.app_dir(@app, "priv/repo/migrations")
           Ecto.Migrator.run(TwitterFeed.Repo, path, :up, all: true)
         end
@@ -40,7 +43,7 @@ defmodule TwitterFeed.Application do
   # Tell Phoenix to update the endpoint configuration
   # whenever the application is updated.
   def config_change(changed, _new, removed) do
-    TwitterFeed.Web.Endpoint.config_change(changed, removed)
+    Web.Endpoint.config_change(changed, removed)
     :ok
   end
 end

@@ -6,12 +6,12 @@ defmodule TwitterFeed.Web.FriendListLiveView do
   @friend_updated Application.get_env(:twitter_feed, :events)[:friend_updated]
   @friend_removed Application.get_env(:twitter_feed, :events)[:friend_removed]
 
-  def mount(%{user_id: id}, socket) do
+  def mount(_params, %{"user_id" => user_id}, socket) do
     Phoenix.PubSub.subscribe(TwitterFeed.PubSub, @friends_topic)
 
     socket =
       socket
-      |> assign(user_id: id)
+      |> assign(user_id: user_id)
       |> load_friends
 
     {:ok, socket}
@@ -31,8 +31,8 @@ defmodule TwitterFeed.Web.FriendListLiveView do
       |> Enum.map(& &1.id)
 
     friends
-    |> Enum.chunk_every(ideal_chunk_size(friends))
-    |> Enum.each(& mark_latest_tweets(&1, user_id))
+    |> Enum.chunk_every(TwitterFeed.ideal_chunk_size(friends))
+    |> Enum.each(&mark_latest_tweets(&1, user_id))
 
     {:noreply, socket}
   end
@@ -41,7 +41,9 @@ defmodule TwitterFeed.Web.FriendListLiveView do
     friend_list =
       term
       |> case do
-        "" -> Map.values(friends)
+        "" ->
+          Map.values(friends)
+
         term ->
           friends
           |> Map.values()
@@ -52,17 +54,21 @@ defmodule TwitterFeed.Web.FriendListLiveView do
           end)
       end
 
-
     {:noreply, assign(socket, friend_list: friend_list)}
   end
 
-
-  def handle_info({@friends_topic, @friend_added, %{id: id} = friend}, socket = %{assigns: %{friends: friends}}) do
+  def handle_info(
+        {@friends_topic, @friend_added, %{id: id} = friend},
+        socket = %{assigns: %{friends: friends}}
+      ) do
     friends = Map.put(friends, id, friend)
     {:noreply, assign(socket, friends: friends, friend_list: Map.values(friends))}
   end
 
-  def handle_info({@friends_topic, @friend_removed, %{id: id}}, socket = %{assigns: %{friends: friends}}) do
+  def handle_info(
+        {@friends_topic, @friend_removed, %{id: id}},
+        socket = %{assigns: %{friends: friends}}
+      ) do
     friends = Map.delete(friends, id)
     {:noreply, assign(socket, friends: friends, friend_list: Map.values(friends))}
   end
@@ -73,6 +79,7 @@ defmodule TwitterFeed.Web.FriendListLiveView do
 
   defp load_friends(socket = %{assigns: %{user_id: id}}) do
     friends = TwitterFeed.Accounts.get_friends(id)
+
     friend_map =
       friends
       |> Enum.reduce(%{}, fn friend, map -> Map.put(map, friend.id, friend) end)
@@ -94,12 +101,4 @@ defmodule TwitterFeed.Web.FriendListLiveView do
     end)
   end
 
-  defp ideal_chunk_size(items) do
-    num_schedulers = System.schedulers_online()
-
-    items
-    |> length()
-    |> Integer.floor_div(num_schedulers)
-    |> max(num_schedulers)
-  end
 end

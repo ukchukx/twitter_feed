@@ -12,7 +12,6 @@ config :twitter_feed, TwitterFeed.Web.Endpoint,
   code_reloader: true,
   watchers: [npm: ["run", "watch", cd: Path.expand("../assets", __DIR__)]]
 
-
 # Watch static and templates for browser reloading.
 config :twitter_feed, TwitterFeed.Web.Endpoint,
   live_reload: [

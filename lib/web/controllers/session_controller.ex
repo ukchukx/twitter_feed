@@ -11,13 +11,12 @@ defmodule TwitterFeed.Web.SessionController do
   @spec delete_session(Plug.Conn.t(), map()) :: Plug.Conn.t()
   @spec set_current_user(Plug.Conn.t(), Accounts.User.t()) :: Plug.Conn.t()
 
-
   def signin(%{assigns: %{current_user: %{id: _}}} = conn, _) do
     redirect(conn, to: Routes.page_path(conn, :index))
   end
 
   def signin(conn, _) do
-    render conn, "new.html", path: Routes.session_path(conn, :create_session), title: "Sign in"
+    render(conn, "new.html", path: Routes.session_path(conn, :create_session), title: "Sign in")
   end
 
   def create_session(conn, _) do
@@ -31,9 +30,8 @@ defmodule TwitterFeed.Web.SessionController do
 
     {:ok, url} = ExTwitter.authenticate_url(token.oauth_token)
     Logger.info("Redirecting to #{url} for authentication")
-    redirect conn, external: url
+    redirect(conn, external: url)
   end
-
 
   def twitter_hook(conn, %{"oauth_token" => t, "oauth_verifier" => v}) do
     {:ok, %{oauth_token: ot, oauth_token_secret: ots}} = ExTwitter.access_token(v, t)
@@ -41,12 +39,10 @@ defmodule TwitterFeed.Web.SessionController do
 
     ExTwitter.configure(
       :process,
-      [
-        consumer_key: config[:consumer_key],
-        consumer_secret: config[:consumer_secret],
-        access_token: ot,
-        access_token_secret: ots
-      ]
+      consumer_key: config[:consumer_key],
+      consumer_secret: config[:consumer_secret],
+      access_token: ot,
+      access_token_secret: ots
     )
 
     %{id: user_id} = user_info = ExTwitter.verify_credentials()

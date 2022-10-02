@@ -40,19 +40,22 @@ defmodule TwitterFeed.MixProject do
       {:confex, "~> 3.4.0"},
       {:dialyxir, "~> 1.0", only: [:dev, :test], runtime: false},
       {:extwitter, "~> 0.13"},
+      {:floki, ">= 0.30.0", only: :test},
       {:oauther, "~> 1.1"},
-      {:phoenix, "~> 1.4.9"},
-      {:phoenix_live_view, "~> 0.3.0"},
-      {:phoenix_pubsub, "~> 1.1"},
-      {:phoenix_ecto, "~> 4.0"},
-      {:ecto_sql, "~> 3.0"},
+      {:phoenix, "~> 1.6.0"},
+      {:phoenix_live_view, "~> 0.18"},
+      {:phoenix_pubsub, "~> 2.0"},
+      {:phoenix_ecto, "~> 4.4.0"},
+      {:ecto_sql, "~> 3.3"},
       {:postgrex, ">= 0.14.3"},
-      {:phoenix_html, "~> 2.11"},
+      {:phoenix_html, "~> 3.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       # {:poison, "~> 3.1"},
-      {:plug_cowboy, "~> 2.0"}
+      {:plug_cowboy, "~> 2.1"},
+      {:telemetry_metrics, "~> 0.6"},
+      {:telemetry_poller, "~> 0.5"}
     ]
   end
 

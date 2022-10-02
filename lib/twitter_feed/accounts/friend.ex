@@ -9,10 +9,10 @@ defmodule TwitterFeed.Accounts.Friend do
   @primary_key false
 
   @type t :: %__MODULE__{
-    user_id: integer(),
-    friend_id: integer(),
-    last_tweet: integer()
-  }
+          user_id: integer(),
+          friend_id: integer(),
+          last_tweet: integer()
+        }
 
   schema "friends" do
     field :last_tweet, :integer

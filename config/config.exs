@@ -27,12 +27,11 @@ config :twitter_feed, TwitterFeed.Repo,
   database: {:system, "TF_DB_NAME", "twitter_feed"},
   pool_size: 10
 
-config :extwitter, :oauth, [
-    consumer_key: {:system, "TF_TWITTER_CONSUMER_KEY", ""},
-    consumer_secret: {:system, "TF_TWITTER_CONSUMER_SECRET", ""},
-    access_token: {:system, "TF_TWITTER_ACCESS_TOKEN", ""},
-    access_token_secret: {:system, "TF_TWITTER_ACCESS_TOKEN_SECRET", ""}
-  ]
+config :extwitter, :oauth,
+  consumer_key: {:system, "TF_TWITTER_CONSUMER_KEY", ""},
+  consumer_secret: {:system, "TF_TWITTER_CONSUMER_SECRET", ""},
+  access_token: {:system, "TF_TWITTER_ACCESS_TOKEN", ""},
+  access_token_secret: {:system, "TF_TWITTER_ACCESS_TOKEN_SECRET", ""}
 
 config :twitter_feed, TwitterFeed.Web.Endpoint,
   url: [
@@ -43,9 +42,9 @@ config :twitter_feed, TwitterFeed.Web.Endpoint,
   http: [:inet6, port: 4000],
   check_origin: false,
   secret_key_base: {:system, "TF_SECRET_KEY_BASE", "dummy"},
-  live_view: [signing_salt: "pR0CP5jlGrUiUbSvuDlxJVe50EYcZ9SwiuXRhoI1MaYdEkRnKXkGGsjgF6YBfLBe"],
+  live_view: [signing_salt: "NruUhNTU7kIdLaFROePJiWn8X1HrH/3G"],
   render_errors: [view: TwitterFeed.Web.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: TwitterFeed.PubSub, adapter: Phoenix.PubSub.PG2]
+  pubsub_server: TwitterFeed.PubSub
 
 config :logger,
   utc_log: true,

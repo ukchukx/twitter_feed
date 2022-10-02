@@ -10,7 +10,8 @@
     "jquery": "^3.5.0",
     "phoenix": "file:../deps/phoenix",
     "phoenix_live_view": "file:../deps/phoenix_live_view",
-    "popper.js": "^1.16.1"
+    "popper.js": "^1.16.1",
+    "topbar": "^1.0.1"
   },
   "devDependencies": {
     "css-loader": "^2.1.0",
