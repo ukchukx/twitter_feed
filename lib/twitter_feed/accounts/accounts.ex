@@ -22,32 +22,25 @@ defmodule TwitterFeed.Accounts do
 
     friends =
       user_id
-      |> ExTwitter.friend_ids()
+      |> ExTwitter.friends(count: 200)
       |> Map.get(:items, [])
-      |> Enum.map(fn id ->
-        id
-        |> create_friend
-        |> case do
-          {:ok, %{id: fid} = friend} ->
-            Logger.info("Created friend #{inspect(friend)}")
-
-            Phoenix.PubSub.broadcast(
-              PubSub,
-              @friends_topic,
-              {@friends_topic, friend_added, friend}
-            )
-
-            fid
-
-          _ ->
-            nil
-        end
+      |> Stream.map(&params_from_result/1)
+      |> Stream.map(&create_user/1)
+      |> Stream.filter(fn
+        {:ok, %{id: id}} -> is_integer(id)
+        _ -> false
       end)
-      |> Enum.filter(&is_integer/1)
+      |> Stream.map(fn {:ok, %{id: id} = friend} ->
+        Logger.info("Created friend #{inspect(friend)}")
+        Phoenix.PubSub.broadcast(PubSub, @friends_topic, {@friends_topic, friend_added, friend})
+
+        id
+      end)
+      |> Enum.to_list()
 
     add_friends(user_id, friends)
 
-    Logger.info("Done adding friends.")
+    Logger.info("Done fetching friends for #{user_id}.")
   end
 
   def get_friends(id) do
@@ -134,14 +127,6 @@ defmodule TwitterFeed.Accounts do
   end
 
   defp friends_query(id), do: from(f in Friend, where: f.user_id == ^id)
-
-  defp create_friend(id) do
-    id
-    |> ExTwitter.user()
-    |> Map.from_struct()
-    |> params_from_result
-    |> create_user
-  end
 
   defp params_from_result(result) do
     %{
