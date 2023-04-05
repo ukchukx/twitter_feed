@@ -21,7 +21,7 @@ blocks:
       prologue:
         commands:
           - checkout
-          - sem-version elixir 1.11
+          - sem-version elixir 1.13
           - mix local.hex --force
           - mix local.rebar --force
           - cache restore
