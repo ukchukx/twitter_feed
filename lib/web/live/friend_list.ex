@@ -1,4 +1,5 @@
 defmodule TwitterFeed.Web.FriendListLiveView do
+  alias TwitterFeed.Accounts.{Friend, User}
   use Phoenix.LiveView
 
   @friends_topic Application.get_env(:twitter_feed, :topics)[:friends]
@@ -66,7 +67,15 @@ defmodule TwitterFeed.Web.FriendListLiveView do
   end
 
   def handle_info(
-        {@friends_topic, @friend_removed, %{id: id}},
+        {@friends_topic, @friend_removed, %User{id: id}},
+        socket = %{assigns: %{friends: friends}}
+      ) do
+    friends = Map.delete(friends, id)
+    {:noreply, assign(socket, friends: friends, friend_list: Map.values(friends))}
+  end
+
+  def handle_info(
+        {@friends_topic, @friend_removed, %Friend{friend_id: id}},
         socket = %{assigns: %{friends: friends}}
       ) do
     friends = Map.delete(friends, id)
@@ -76,6 +85,7 @@ defmodule TwitterFeed.Web.FriendListLiveView do
   def handle_info({@friends_topic, @friend_updated, _}, socket) do
     {:noreply, load_friends(socket)}
   end
+
 
   defp load_friends(socket = %{assigns: %{user_id: id}}) do
     friends = TwitterFeed.Accounts.get_friends(id)
