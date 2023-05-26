@@ -29,7 +29,6 @@ defmodule TwitterFeed do
           |> Keyword.take(~w[consumer_key consumer_secret]a)
           |> Keyword.put(:access_token, user.access_token)
           |> Keyword.put(:access_token_secret, user.access_token_secret)
-          |> IO.inspect
 
         ExTwitter.configure(:process, config)
     end
