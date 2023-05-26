@@ -50,6 +50,5 @@ defmodule TwitterFeed.Web.Endpoint do
   # Set :encryption_salt if you would also like to encrypt it.
   plug Plug.Session, @session_options
 
-
   plug TwitterFeed.Web.Router
 end

@@ -23,10 +23,6 @@ defmodule TwitterFeed.Web.SessionController do
     url = Routes.session_url(conn, :twitter_hook)
     Logger.info("Callback url #{url}")
     token = ExTwitter.request_token(url)
-    # token =
-    #   conn
-    #   |> Routes.session_url(:twitter_hook)
-    #   |> ExTwitter.request_token
 
     {:ok, url} = ExTwitter.authenticate_url(token.oauth_token)
     Logger.info("Redirecting to #{url} for authentication")

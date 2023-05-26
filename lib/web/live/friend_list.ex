@@ -86,7 +86,6 @@ defmodule TwitterFeed.Web.FriendListLiveView do
     {:noreply, load_friends(socket)}
   end
 
-
   defp load_friends(socket = %{assigns: %{user_id: id}}) do
     friends = TwitterFeed.Accounts.get_friends(id)
 
@@ -110,5 +109,4 @@ defmodule TwitterFeed.Web.FriendListLiveView do
       end)
     end)
   end
-
 end

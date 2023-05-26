@@ -19,6 +19,7 @@ defmodule TwitterFeed.Accounts do
   def fetch_friends(user_id) do
     Logger.info("Fetching friends for #{user_id}")
     friend_added = Application.get_env(:twitter_feed, :events)[:friend_added]
+    TwitterFeed.configure_client(user_id)
 
     friends =
       user_id

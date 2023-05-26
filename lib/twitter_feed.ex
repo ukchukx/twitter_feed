@@ -13,6 +13,28 @@ defmodule TwitterFeed do
 
   alias TwitterFeed.{Accounts, PubSub}
 
+  def configure_client(nil), do: :ok
+
+  def configure_client(user_id) do
+    user = Accounts.get_user_by_id(user_id)
+
+    case user.access_token do
+      nil ->
+        :ok
+
+      _ ->
+        config =
+          :extwitter
+          |> Application.get_env(:oauth)
+          |> Keyword.take(~w[consumer_key consumer_secret]a)
+          |> Keyword.put(:access_token, user.access_token)
+          |> Keyword.put(:access_token_secret, user.access_token_secret)
+          |> IO.inspect
+
+        ExTwitter.configure(:process, config)
+    end
+  end
+
   def save_last_tweet(user_id, friend_id, tweet_id) do
     tweet_id = integer_id(tweet_id)
     friend_id = integer_id(friend_id)
@@ -33,9 +55,11 @@ defmodule TwitterFeed do
   end
 
   def user_timeline(opts \\ []) do
+    configure_client(opts[:user_id])
+
     try do
       opts
-      |> Keyword.put_new(:count, 50)
+      |> Keyword.put_new(:max_results, 70)
       |> ExTwitter.user_timeline()
     rescue
       Extwitter.RateLimitExceededError -> []
